@@ -92,7 +92,7 @@ ids <- get_heritage_ids(my_sf_polygon)
 
 ### Problems and Issues
 
--   Please report any issues or bugs you may encounter on the [dedicated page on github](https://github.com/mucau/frcadastre/issues).
+-   Please report any issues or bugs you may encounter on the [dedicated page on github](https://github.com/mucau/frheritage/issues).
 
 ------------------------------------------------------------------------
 
