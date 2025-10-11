@@ -1,20 +1,24 @@
-#' Retrieve layer IDs for a given sf object
+#' Retrieve heritage layer IDs for a given sf object
 #'
 #' This function retrieves available layer identifiers from the French Ministry
-#' of Culture's "Atlas du Patrimoine" GeoSource RSS feed, based on the
-#' spatial extent and department of a given sf object.
+#' of Culture's "Atlas du Patrimoine" GeoSource service feed, based on the
+#' spatial extent and department(s) of a given `sf` object.
 #'
 #' @param x An `sf` object defining the area of interest.
-#' @param verbose `logical`. If `TRUE`, prints progress messages.
+#' @param buffer A `numeric` value (default = 2500). Buffer distance in meters
+#' used to slightly expand geometries before querying.
+#' @param crs An `integer` or `sf::st_crs` object (default = 2154). Coordinate
+#' reference system used for spatial processing.
+#' @param verbose Logical. If `TRUE` (default), prints progress and diagnostic messages.
 #'
 #' @details
 #' Internally, the function:
 #' \enumerate{
-#'   \item Aggregates nearby geometries using `geo_aggregate()`.
-#'   \item Determines the corresponding INSEE department code for each geometry.
+#'   \item Aggregates nearby geometries using `buffer` input.
+#'   \item Determines the corresponding INSEE department code for each geometry, using `happign::get_wfs()`.
 #'   \item Computes the bounding box of each geometry.
-#'   \item Queries the "Atlas du Patrimoine" RSS feed for all available metadata
-#'         records (titles, GUIDs, IDs) within each bounding box.
+#'   \item Queries the "Atlas du Patrimoine" GeoSource service feed for all available metadata
+#'         records (IDs, titles, GUIDs) within each bounding box.
 #' }
 #' Progress is shown for each request.
 #'
@@ -22,8 +26,9 @@
 #' A `data.frame` with the following columns:
 #' \describe{
 #'   \item{id}{Numeric identifier extracted from the record GUID.}
-#'   \item{title}{Record title as published in the RSS feed.}
+#'   \item{title}{Record title as published in the GeoSource service feed.}
 #'   \item{guid}{Full GUID (unique resource identifier).}
+#'   \item{code}{Internal code associated with the layer.}
 #' }
 #' Returns an empty `data.frame` if no records are found or the request fails.
 #'

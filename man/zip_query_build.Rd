@@ -2,7 +2,7 @@
 % Please edit documentation in R/zip.R
 \name{zip_query_build}
 \alias{zip_query_build}
-\title{Build a URL query to download a ZIP from Atlas Patrimoines}
+\title{Build a URL query to download a ZIP}
 \usage{
 zip_query_build(id, title, guid = NULL, extent_vals, crs = 2154)
 }
@@ -24,7 +24,7 @@ system to use in the query.}
 }
 \description{
 Constructs a URL query to request a ZIP file containing geospatial data from
-the Atlas Patrimoines service.
+the French Ministry of Culture's "Atlas du Patrimoine" GeoSource service.
 }
 \details{
 \itemize{

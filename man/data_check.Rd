@@ -2,7 +2,7 @@
 % Please edit documentation in R/data.R
 \name{data_check}
 \alias{data_check}
-\title{Check that heritage data codes are valid}
+\title{Check that layer data codes are valid}
 \usage{
 data_check(data_code)
 }
@@ -26,5 +26,8 @@ Validates that provided data codes exist in the heritage layers.
 data_check(c("monument", "site_archaeo"))
 }
 
+}
+\seealso{
+\code{\link[=get_heritage_layernames]{get_heritage_layernames()}}
 }
 \keyword{internal}

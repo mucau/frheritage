@@ -2,12 +2,13 @@
 % Please edit documentation in R/data.R
 \name{data_filter}
 \alias{data_filter}
-\title{Filter heritage data IDs by code and department}
+\title{Filter layer IDs by internal code and department}
 \usage{
-data_filter(ids, department, data_code)
+data_filter(ids = NULL, department, data_code)
 }
 \arguments{
-\item{ids}{Data frame. Input dataset of IDs. Currently ignored; function uses \code{frheritage::all_ids}.}
+\item{ids}{\code{data.frame}. Input dataset of IDs. \code{NULL} as default.
+If \code{NULL} function uses \code{frheritage::all_ids}.}
 
 \item{department}{\code{character} vector. Department(s) to filter.}
 
@@ -17,7 +18,7 @@ data_filter(ids, department, data_code)
 \code{data.frame}. Subset of \code{ids} filtered by \code{data_code} and \code{department}, with \code{departement} column removed.
 }
 \description{
-Filters a dataset of heritage IDs based on provided data codes and departments.
+Filters a dataset of layer IDs based on provided data codes and departments.
 }
 \details{
 \itemize{

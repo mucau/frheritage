@@ -2,20 +2,20 @@
 % Please edit documentation in R/ids.R
 \name{ids_to_codes}
 \alias{ids_to_codes}
-\title{Map heritage descriptions to standard heritage codes}
+\title{Determine internal codes from IDs titles}
 \usage{
 ids_to_codes(x)
 }
 \arguments{
-\item{x}{Character vector of heritage descriptions.}
+\item{x}{\code{character} vector of IDs titles.}
 }
 \value{
-Character vector of codes corresponding to each input description.
+\code{character} vector of internal codes corresponding to each input IDs titles.
 Returns \code{NA} if no pattern matches.
 }
 \description{
-This internal function converts textual descriptions of heritage items
-into their corresponding internal codes (e.g., "IMMH", "PAMH").
+This internal function converts IDs tiles into their corresponding
+internal codes (e.g., "IMMH", "PAMH").
 It matches based on predefined keyword patterns and chooses the most
 specific code when multiple patterns match.
 }

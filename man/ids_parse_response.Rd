@@ -2,7 +2,7 @@
 % Please edit documentation in R/ids.R
 \name{ids_parse_response}
 \alias{ids_parse_response}
-\title{Parse the response from the "Atlas du Patrimoine" RSS service}
+\title{Parse the response from the RSS service}
 \usage{
 ids_parse_response(res)
 }
@@ -14,7 +14,7 @@ ids_parse_response(res)
 A \code{data.frame} with the following columns:
 \describe{
 \item{id}{Numeric identifier extracted from the GUID.}
-\item{title}{Record title as published in the RSS feed.}
+\item{title}{Record title as published in the GeoSource service.}
 \item{guid}{Full GUID (unique resource identifier).}
 }
 Returns an empty \code{data.frame} if the response is \code{NULL}, has a non-200 status,
@@ -22,8 +22,8 @@ or contains no items.
 }
 \description{
 This internal helper parses the XML response returned by \code{\link[=ids_perform_request]{ids_perform_request()}}
-to extract and format dataset metadata items (titles and GUIDs) published
-in the French Ministry of Culture's GeoSource RSS feed.
+to extract and format dataset metadata items (IDs, titles and GUIDs) published
+in the French Ministry of Culture's"Atlas du Patrimoine" GeoSource RSS service feed.
 }
 \details{
 The function reads the XML structure of the RSS feed and extracts all

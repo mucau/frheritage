@@ -2,7 +2,7 @@
 % Please edit documentation in R/ids.R
 \name{ids_fetch}
 \alias{ids_fetch}
-\title{Fetch heritage items from a given Atlas URL}
+\title{Fetch layers items from a given URL}
 \usage{
 ids_fetch(url, id = NA_character_, verbose = FALSE)
 }

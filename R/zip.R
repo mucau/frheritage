@@ -1,7 +1,7 @@
-#' Build a URL query to download a ZIP from Atlas Patrimoines
+#' Build a URL query to download a ZIP
 #'
 #' Constructs a URL query to request a ZIP file containing geospatial data from
-#' the Atlas Patrimoines service.
+#' the French Ministry of Culture's "Atlas du Patrimoine" GeoSource service.
 #'
 #' @param id `character` or `numeric`. Identifier of the dataset.
 #' @param title `character`. Title of the dataset.
@@ -49,7 +49,6 @@ zip_query_build <- function(id, title, guid = NULL, extent_vals, crs = 2154) {
   paste0("http://atlas.patrimoines.culture.fr/services/export.php?data=",
          utils::URLencode(json_param, reserved = TRUE))
 }
-
 
 #' Download a ZIP file from a given URL
 #'

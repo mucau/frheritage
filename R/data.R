@@ -1,8 +1,38 @@
-#' Filter heritage data IDs by code and department
+#' Check that layer data codes are valid
 #'
-#' Filters a dataset of heritage IDs based on provided data codes and departments.
+#' Validates that provided data codes exist in the heritage layers.
 #'
-#' @param ids Data frame. Input dataset of IDs. Currently ignored; function uses `frheritage::all_ids`.
+#' @param data_code `character` vector. Data codes to check.
+#'
+#' @return `NULL`. Invisibly returns `NULL` if all codes are valid; otherwise throws an error.
+#'
+#' @details
+#' - Uses `get_heritage_layernames()` to get the list of valid codes.
+#' - Throws an error if any `data_code` is invalid.
+#'
+#' @seealso [get_heritage_layernames()]
+#'
+#' @examples
+#' \dontrun{
+#' data_check(c("monument", "site_archaeo"))
+#' }
+#'
+#' @keywords internal
+#'
+data_check <- function(data_code) {
+  valid_codes <- get_heritage_layernames()$code
+  if (!all(data_code %in% valid_codes)) {
+    stop("`data_code` must be one of: ", paste(valid_codes, collapse = ", "))
+  }
+  invisible(NULL)
+}
+
+#' Filter layer IDs by internal code and department
+#'
+#' Filters a dataset of layer IDs based on provided data codes and departments.
+#'
+#' @param ids `data.frame`. Input dataset of IDs. `NULL` as default.
+#' If `NULL` function uses `frheritage::all_ids`.
 #' @param department `character` vector. Department(s) to filter.
 #' @param data_code `character` vector. Data codes to filter. Must be valid heritage layer codes.
 #'
@@ -20,36 +50,10 @@
 #'
 #' @keywords internal
 #'
-data_filter <- function(ids, department, data_code) {
+data_filter <- function(ids = NULL, department, data_code) {
   data_check(data_code)
-  ids <- frheritage::all_ids
-  subset(ids, code %in% data_code & departement %in% department, select = -departement)
-}
-
-
-#' Check that heritage data codes are valid
-#'
-#' Validates that provided data codes exist in the heritage layers.
-#'
-#' @param data_code `character` vector. Data codes to check.
-#'
-#' @return `NULL`. Invisibly returns `NULL` if all codes are valid; otherwise throws an error.
-#'
-#' @details
-#' - Uses `get_heritage_layernames()` to get the list of valid codes.
-#' - Throws an error if any `data_code` is invalid.
-#'
-#' @examples
-#' \dontrun{
-#' data_check(c("monument", "site_archaeo"))
-#' }
-#'
-#' @keywords internal
-#'
-data_check <- function(data_code) {
-  valid_codes <- get_heritage_layernames()$code
-  if (!all(data_code %in% valid_codes)) {
-    stop("`data_code` must be one of: ", paste(valid_codes, collapse = ", "))
+  if (is.NULL(ids)){
+    ids <- frheritage::all_ids
   }
-  invisible(NULL)
+  subset(ids, code %in% data_code & departement %in% department, select = -departement)
 }

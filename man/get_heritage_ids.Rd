@@ -2,37 +2,44 @@
 % Please edit documentation in R/get_heritage_ids.R
 \name{get_heritage_ids}
 \alias{get_heritage_ids}
-\title{Retrieve layer IDs for a given sf object}
+\title{Retrieve heritage layer IDs for a given sf object}
 \usage{
 get_heritage_ids(x, buffer = 2500, crs = 2154, verbose = TRUE)
 }
 \arguments{
 \item{x}{An \code{sf} object defining the area of interest.}
 
-\item{verbose}{\code{logical}. If \code{TRUE}, prints progress messages.}
+\item{buffer}{A \code{numeric} value (default = 2500). Buffer distance in meters
+used to slightly expand geometries before querying.}
+
+\item{crs}{An \code{integer} or \code{sf::st_crs} object (default = 2154). Coordinate
+reference system used for spatial processing.}
+
+\item{verbose}{Logical. If \code{TRUE} (default), prints progress and diagnostic messages.}
 }
 \value{
 A \code{data.frame} with the following columns:
 \describe{
 \item{id}{Numeric identifier extracted from the record GUID.}
-\item{title}{Record title as published in the RSS feed.}
+\item{title}{Record title as published in the GeoSource service feed.}
 \item{guid}{Full GUID (unique resource identifier).}
+\item{code}{Internal code associated with the layer.}
 }
 Returns an empty \code{data.frame} if no records are found or the request fails.
 }
 \description{
 This function retrieves available layer identifiers from the French Ministry
-of Culture's "Atlas du Patrimoine" GeoSource RSS feed, based on the
-spatial extent and department of a given sf object.
+of Culture's "Atlas du Patrimoine" GeoSource service feed, based on the
+spatial extent and department(s) of a given \code{sf} object.
 }
 \details{
 Internally, the function:
 \enumerate{
-\item Aggregates nearby geometries using \code{geo_aggregate()}.
-\item Determines the corresponding INSEE department code for each geometry.
+\item Aggregates nearby geometries using \code{buffer} input.
+\item Determines the corresponding INSEE department code for each geometry, using \code{happign::get_wfs()}.
 \item Computes the bounding box of each geometry.
-\item Queries the "Atlas du Patrimoine" RSS feed for all available metadata
-records (titles, GUIDs, IDs) within each bounding box.
+\item Queries the "Atlas du Patrimoine" GeoSource service feed for all available metadata
+records (IDs, titles, GUIDs) within each bounding box.
 }
 Progress is shown for each request.
 }

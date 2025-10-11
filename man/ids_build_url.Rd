@@ -2,7 +2,7 @@
 % Please edit documentation in R/ids.R
 \name{ids_build_url}
 \alias{ids_build_url}
-\title{Build a search URL for French heritage IDs}
+\title{Build a search URL for the RSS service}
 \usage{
 ids_build_url(extent, insee_dep)
 }
@@ -13,12 +13,11 @@ defining the bounding box coordinates.}
 \item{insee_dep}{A character or numeric INSEE department code.}
 }
 \value{
-A character string containing the full URL to query the RSS service.
+A character string containing the full URL to query the GeoSource service.
 }
 \description{
-This internal helper constructs a URL to query the French heritage
-RSS search service, filtered by a bounding box (\code{extent}) and
-a department code (\code{insee_dep}). The URL is routed through the
-Atlas IGN proxy.
+This internal helper constructs a URL to query the French Ministry
+of Culture's "Atlas du Patrimoine" GeoSource service, filtered by a
+bounding box (\code{extent}) and a department code (\code{insee_dep}).
 }
 \keyword{internal}

@@ -1,3 +1,22 @@
+#' Available layer datasets
+#'
+#' A dataset containing available layer datasets from the French
+#' Ministry of Culture's "Atlas du Patrimoine" GeoSource service.
+#'
+#' @format A `data.frame` with 5 columns:
+#' \describe{
+#'   \item{id}{(character) Layer id.}
+#'   \item{title}{(character) Layer title.}
+#'   \item{guid}{(integer) Layer guid.}
+#'   \item{code}{(character) Internal code, determined from tile.}
+#'   \item{departement}{(character) Layer department}
+#' }
+#'
+#' @details
+#' Contains only data available on the 96 departments of metropolitan France.
+#'
+"all_ids"
+
 #' Execute an expression completely silently
 #'
 #' This utility executes any R expression or function call and returns its value,
