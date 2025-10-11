@@ -1,14 +1,27 @@
 Package: frheritage
-Title: What the Package Does (One Line, Title Case)
+Title: R Interface to get french heritage data
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Matthieu", "Chevereau", , "matthieu.chevereau@hotmail.com", role = c("aut", "cre"))
+Description: Get spatial vector data from the French cadastre portal (<http://atlas.patrimoines.culture.fr/atlas/trunk/>).
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Imports:
+    R.utils,
+    jsonlite,
+    happign,
+    httr2,
+    sf,
+    xml2
 Depends: 
     R (>= 3.5)
 LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.1.7),
+    httptest2
+VignetteBuilder: knitr
+Config/testthat/edition: 3
