@@ -64,6 +64,8 @@ The main functions are:
 
 -    `get_heritage_ids()`: Retrieves available heritage IDs from the **Atlas du Patrimoine** from a given `sf` object.
 
+The `get_heritage()` function works with the internal database `frheritage::all_ids` which contains (normally) all the IDs for metropolitan France.
+
 ### Getting start
 
 ``` r
@@ -87,7 +89,9 @@ codes <- get_heritage_layernames()
 
 # You don't trust my codes ?
 # Okay, that's fine. You can check that I haven't forgotten any.
+all_ids <- frheritage::all_ids # <- the internal database
 ids <- get_heritage_ids(my_sf_polygon)
+
 ```
 
 ### Problems and Issues
