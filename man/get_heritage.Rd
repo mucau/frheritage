@@ -46,6 +46,8 @@ It first identifies relevant dataset IDs and then downloads corresponding
 shapefiles for each requested heritage code.
 }
 \details{
+This functions only works for the 96 departments of metropolitan France.
+
 Internally, the function:
 \enumerate{
 \item Validates the requested heritage codes.
@@ -53,7 +55,7 @@ Internally, the function:
 \item Prepares the geometry and aggregates nearby geometries using \code{buffer} input.
 \item Determines the corresponding INSEE department code for each geometry, using \code{happign::get_wfs()}.
 \item Computes the bounding box of each geometry.
-\item Filters metadata records for the requested \code{data_code}.
+\item Filters layers ids for the requested \code{data_code} by using \code{frheritage::all_ids}.
 \item Builds the URL and downloads the zip archive containing the shapefiles.
 \item Reads and merges shapefiles into \code{sf} objects.
 }

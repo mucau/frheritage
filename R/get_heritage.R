@@ -18,6 +18,8 @@
 #' @param verbose Logical. If `TRUE` (default), prints progress and diagnostic messages.
 #'
 #' @details
+#' This functions only works for the 96 departments of metropolitan France.
+#'
 #' Internally, the function:
 #' \enumerate{
 #'   \item Validates the requested heritage codes.
@@ -25,7 +27,7 @@
 #'   \item Prepares the geometry and aggregates nearby geometries using `buffer` input.
 #'   \item Determines the corresponding INSEE department code for each geometry, using `happign::get_wfs()`.
 #'   \item Computes the bounding box of each geometry.
-#'   \item Filters metadata records for the requested `data_code`.
+#'   \item Filters layers ids for the requested `data_code` by using `frheritage::all_ids`.
 #'   \item Builds the URL and downloads the zip archive containing the shapefiles.
 #'   \item Reads and merges shapefiles into `sf` objects.
 #' }
