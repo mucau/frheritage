@@ -4,7 +4,7 @@ test_that("ids_download() retrieves and parses data correctly", {
   skip_if_not_installed("sf")
 
   # Load internal sf object
-  sevres_path <- system.file("extdata/sevres.Rda", package = "frheritage")
+  sevres_path <- system.file("extdata/sevres.rda", package = "frheritage")
   load(sevres_path)
   expect_s3_class(sevres, "sf")
 

@@ -3,7 +3,7 @@ test_that("get_heritage_ids() works with valid sf input", {
   skip_if_not_installed("sf")
 
   # Load the sf object from inst/extdata
-  sevres_path <- system.file("extdata/sevres.Rda", package = "frheritage")
+  sevres_path <- system.file("extdata/sevres.rda", package = "frheritage")
   load(sevres_path)  # loads object 'sevres'
   expect_s3_class(sevres, "sf")
 

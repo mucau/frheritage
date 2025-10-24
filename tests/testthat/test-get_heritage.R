@@ -3,7 +3,7 @@ test_that("get_heritage() retrieves one heritage data correctly", {
   skip_if_not_installed("httptest2")
   skip_if_not_installed("sf")
 
-  sevres_path <- system.file("extdata/sevres.Rda", package = "frheritage")
+  sevres_path <- system.file("extdata/sevres.rda", package = "frheritage")
   load(sevres_path)
   expect_s3_class(sevres, "sf")
 
@@ -28,7 +28,7 @@ test_that("get_heritage() retrieves several heritage data correctly", {
   skip_if_not_installed("httptest2")
   skip_if_not_installed("sf")
 
-  sevres_path <- system.file("extdata/sevres.Rda", package = "frheritage")
+  sevres_path <- system.file("extdata/sevres.rda", package = "frheritage")
   load(sevres_path)
   expect_s3_class(sevres, "sf")
 
