@@ -2,19 +2,22 @@
 % Please edit documentation in R/geo.R
 \name{geo_shapefiles_read}
 \alias{geo_shapefiles_read}
-\title{Read all shapefiles from a ZIP archive}
+\title{Read and reproject shapefiles from a ZIP archive}
 \usage{
-geo_shapefiles_read(zip_path)
+geo_shapefiles_read(zip_path, crs = 2154)
 }
 \arguments{
-\item{zip_path}{Path to a ZIP archive containing shapefiles.}
+\item{zip_path}{\code{character}. Path to the ZIP archive to read.}
+
+\item{crs}{\code{numeric} or \code{sf::st_crs} object. Source CRS to assume
+if missing in the shapefiles. Default is 2154 (Lambert-93).}
 }
 \value{
-A list of \code{sf} objects read from the shapefiles. Empty list if none.
+A list of \code{sf} objects reprojected to EPSG:2151.
 }
 \description{
-This internal helper extracts a ZIP file containing shapefiles and reads
-all \code{.shp} files into a list of \code{sf} objects. Invalid or unreadable shapefiles
-are silently ignored.
+Extracts shapefiles from a ZIP archive, reads them into \code{sf} objects,
+and reprojects each to EPSG:2151 (Lambert-93 projection for France),
+unless already in the target CRS.
 }
 \keyword{internal}

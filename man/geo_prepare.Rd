@@ -2,26 +2,42 @@
 % Please edit documentation in R/geo.R
 \name{geo_prepare}
 \alias{geo_prepare}
-\title{Prepare an sf object for processing}
+\title{Prepare and aggregate an sf object}
 \usage{
-geo_prepare(x, crs = 2154)
+geo_prepare(x, crs = 2154, buffer = 10)
 }
 \arguments{
-\item{x}{An \code{sf} object to prepare.}
+\item{x}{An \code{sf} object to process.}
 
-\item{crs}{EPSG code of the target CRS. Default is 2154.}
+\item{crs}{Integer. EPSG code of the target CRS. Default is \code{2154}.}
+
+\item{buffer}{Numeric. Buffer distance (in map units) used to merge nearby features. Default is \code{10}.}
 }
 \value{
-A cleaned and projected \code{sf} object ready for further processing.
+An \code{sf} object with cleaned, projected, and aggregated geometries as \code{POLYGON}s.
 }
 \description{
-This internal helper performs a series of preparation steps on an \code{sf} object:
-\itemize{
-\item Validates geometry types.
-\item Fixes invalid geometries using \code{st_make_valid}.
-\item Removes Z/M dimensions with \code{st_zm}.
-\item Casts multi-part geometries to simple types.
-\item Transforms the object to the specified CRS.
+This helper function prepares and aggregates an \code{sf} object
+to produce clean, valid, and unified geometries.
 }
+\details{
+The function performs a complete geometric preparation workflow:
+\enumerate{
+\item Geometry validation: ensures that all geometries belong to allowed classes (\code{POINT}, \code{LINE}, or \code{POLYGON}).
+\item Geometry cleaning: invalid features are fixed with \code{\link[sf:valid]{sf::st_make_valid()}}, Z/M dimensions are dropped via \code{\link[sf:st_zm]{sf::st_zm()}}, and multipart geometries are cast to simple forms.
+\item Reprojection: all geometries are transformed to the specified CRS using \code{\link[sf:st_transform]{sf::st_transform()}}.
+\item Aggregation: small buffer zones (controlled by \code{buffer}) are applied to merge adjacent or overlapping features.
+The buffered geometries are then dissolved with \code{\link[sf:geos_combine]{sf::st_union()}} and cast to \code{POLYGON} type.
+}
+
+This process is useful for simplifying feature sets into larger contiguous study zones or analysis areas.
+}
+\examples{
+\dontrun{
+library(sf)
+nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+zones <- geo_prepare(nc, buffer = 500)
+}
+
 }
 \keyword{internal}

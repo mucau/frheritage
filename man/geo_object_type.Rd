@@ -24,10 +24,10 @@ The function retrieves the geometry type of the input using
 \code{\link[sf:st_geometry_type]{sf::st_geometry_type()}} and standardizes it according to a simplified
 classification:
 \itemize{
-\item \code{"POINT"} and \code{"MULTIPOINT"} → \code{"POINT"}
-\item \code{"LINESTRING"} and \code{"MULTILINESTRING"} → \code{"LINE"}
-\item \code{"POLYGON"} and \code{"MULTIPOLYGON"} → \code{"POLYGON"}
-\item All other types → \code{"GEOMETRY"}
+\item \code{"POINT"} and \code{"MULTIPOINT"} = \code{"POINT"}
+\item \code{"LINESTRING"} and \code{"MULTILINESTRING"} = \code{"LINE"}
+\item \code{"POLYGON"} and \code{"MULTIPOLYGON"} = \code{"POLYGON"}
+\item All other types = \code{"GEOMETRY"}
 }
 
 Mixed or inconsistent geometry collections are not supported.

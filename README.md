@@ -3,7 +3,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/mucau/frheritage/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mucau/frcadastre/actions/workflows/R-CMD-check.yaml) [![CRAN status](https://www.r-pkg.org/badges/version/frheritage)](https://CRAN.R-project.org/package=frheritage) [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-
+[![R-CMD-check](https://github.com/mucau/frheritage/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mucau/frheritage/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/mucau/frheritage/graph/badge.svg)](https://app.codecov.io/gh/mucau/frheritage)
 <!-- badges: end -->
 
 ## Overview
@@ -18,7 +19,7 @@ The Atlas gathers and harmonizes data from several major databases such as:
 
 -   Patrimoine Mondial – UNESCO World Heritage sites in France
 
--   Patrimoine Archéologique – archaeological sites and surveys
+-   Patrimoine Archeologique – archaeological sites and surveys
 
 -   Musees de France, Joconde, and other cultural inventories
 

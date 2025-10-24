@@ -47,47 +47,41 @@ get_heritage_ids <- function(x,
                              crs = 2154,
                              verbose = TRUE) {
 
-  # --- Step 1: Prepare input geometry ---
+  # Step 1: Prepare input geometry
   geo_too_large(x, verbose = verbose)  # Stop if geometry is too large
-  x <- geo_prepare(x, crs)
-  y <- geo_aggregate_light(x, buffer)  # Light aggregation with buffer
+  y <- geo_prepare(x, crs = crs, buffer = buffer)
 
-  # --- Step 2: Compute extents and departments ---
+  # Step 2: Compute extents and departments
   extents <- geo_extent(y)
   deps <- silent_run(geo_dep(x))
-  if (verbose) {
-    message(sprintf("%d department(s) detected.",
-                    length(deps)))
-  }
+  if (verbose) message(sprintf("%d department(s) detected.", length(deps)))
 
-  # --- Step 3: Build request URLs (vectorized) ---
+  # Step 3: Build URLs
   urls <- mapply(
-    ids_build_url,
+    ids_url_build,
     split(as.data.frame(extents), seq_len(nrow(extents))),
     deps,
     SIMPLIFY = TRUE
   )
 
-  # --- Step 4: Download and parse metadata sequentially ---
-  all_ids <- lapply(seq_along(urls), function(i) {
-    ids_fetch(urls[i], dep[i], verbose)
+  # Step 4: Download and parse each URL
+  results <- lapply(seq_along(urls), function(i) {
+    df <- ids_download(urls[i], verbose = verbose)
+    if (nrow(df) == 0 && verbose)
+      message(sprintf("No result for dep %s", deps[i]))
+    df
   })
 
-  # --- Step 5: Combine all results and remove empty entries ---
-  combined <- do.call(rbind, Filter(NROW, all_ids))
+  # Step 5: Combine and clean
+  combined <- do.call(rbind, Filter(NROW, results))
   if (is.null(combined) || nrow(combined) == 0) {
     warning("No heritage identifiers were retrieved.")
     return(data.frame())
   }
 
-  # --- Step 6: Remove duplicates and assign typological codes ---
   combined <- combined[!duplicated(combined$id), , drop = FALSE]
   combined$code <- ids_to_codes(combined$title)
 
-  if (verbose) {
-    message(sprintf("%d unique heritage ID(s) retrieved.",
-                    nrow(combined)))
-  }
-
+  if (verbose) message(sprintf("%d unique heritage ID(s) retrieved.", nrow(combined)))
   combined
 }

@@ -62,34 +62,33 @@ get_heritage <- function(x,
                          spatial_filter = "intersects",
                          verbose = TRUE) {
 
-  # --- Step 1: Validate inputs ---
+  # Step 1: Validate inputs
   data_check(data_code)
   spatial_filter <- geo_spatial_check(spatial_filter)
 
-  # --- Step 2: Prepare input geometry ---
+  # Step 2: Prepare input geometry
   geo_too_large(x, verbose = verbose)  # Stop if geometry is too large
-  x <- geo_prepare(x, crs)
-  y <- geo_aggregate_light(x, buffer)  # Apply light aggregation with buffer
+  y <- geo_prepare(x, crs = crs, buffer = buffer)
 
-  # --- Step 3: Compute extent and department ---
+  # Step 3: Compute extent and department
   extents <- geo_extent(y)
   deps <- silent_run(geo_dep(x))
 
-  # --- Step 4: Filter metadata by data_code ---
+  # Step 4: Filter metadata by data_code
   ids <- data_filter(department = deps, data_code = data_code)
 
-  # --- Step 5: Basic checks ---
+  # Step 5: Basic checks
   if (is.null(extents) || length(extents) != 4)
     stop("Invalid extent.")
   if (nrow(ids) == 0)
     stop("No matching IDs found.")
 
-  # --- Step 6: Initialize result list ---
+  # Step 6: Initialize result list
   final_result <- list()
 
-  # --- Step 7: Loop over unique codes ---
+  # Step 7: Loop over unique codes
   for (code in unique(ids$code)) {
-    if (verbose) message("\n--- Processing code ", code, " ---")
+    if (verbose) message("\nProcessing code ", code, "")
 
     code_rows <- ids[ids$code == code, , drop = FALSE]
     code_sf <- lapply(seq_len(nrow(code_rows)), function(i) {
@@ -104,15 +103,15 @@ get_heritage <- function(x,
       if (verbose) message("Requesting ID ", row$id, " ...")
       zip_tmp <- zip_download(url, row$id, verbose)
       if (is.null(zip_tmp)) return(NULL)
-      geo_shapefiles_read(zip_tmp)
+      geo_shapefiles_read(zip_tmp, crs = crs)
     })
 
-    # --- Merge downloaded sf objects ---
+    # Merge downloaded sf objects
     merged <- geo_sf_bind(code_sf)
     if (!is.null(merged)) final_result[[code]] <- merged
   }
 
-  # --- Step 8: Return results ---
+  # Step 8: Return results
   if (length(final_result) == 1) return(final_result[[1]])
 
   if (verbose)

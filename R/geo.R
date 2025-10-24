@@ -66,10 +66,15 @@ geo_spatial_filter <- function(layer, x, spatial_filter) {
                 "OVERLAPS"   = sf::st_overlaps(layer, x),
                 "EQUALS"     = sf::st_equals(layer, x)
   )
+
+  if (is.null(idx)) {
+    stop("Invalid `spatial_filter`: must be one of INTERSECTS, DISJOINT, CONTAINS, WITHIN, TOUCHES, BBOX, CROSSES, OVERLAPS, or EQUALS.", call. = FALSE)
+  }
+
   layer[lengths(idx) > 0, , drop = FALSE]
 }
 
-# geometry type section ----
+# geometry type section-
 #' Determine the geometry type of an `sf` object
 #'
 #' This internal helper function identifies and normalizes the geometry type
@@ -84,10 +89,10 @@ geo_spatial_filter <- function(layer, x, spatial_filter) {
 #' [sf::st_geometry_type()] and standardizes it according to a simplified
 #' classification:
 #' \itemize{
-#'   \item `"POINT"` and `"MULTIPOINT"` → `"POINT"`
-#'   \item `"LINESTRING"` and `"MULTILINESTRING"` → `"LINE"`
-#'   \item `"POLYGON"` and `"MULTIPOLYGON"` → `"POLYGON"`
-#'   \item All other types → `"GEOMETRY"`
+#'   \item `"POINT"` and `"MULTIPOINT"` = `"POINT"`
+#'   \item `"LINESTRING"` and `"MULTILINESTRING"` = `"LINE"`
+#'   \item `"POLYGON"` and `"MULTIPOLYGON"` = `"POLYGON"`
+#'   \item All other types = `"GEOMETRY"`
 #' }
 #'
 #' Mixed or inconsistent geometry collections are not supported.
@@ -196,10 +201,10 @@ geo_object_type <- function(x) {
 #' @keywords internal
 #'
 geo_object_check <- function(...,
-                      check_class = TRUE,
-                      check_valid = TRUE,
-                      check_empty = TRUE,
-                      allowed_geom_classes = "POLYGON") {
+                             check_class = TRUE,
+                             check_valid = TRUE,
+                             check_empty = TRUE,
+                             allowed_geom_classes = "POLYGON") {
 
   dots <- list(...)
   arg_names <- as.list(substitute(list(...)))[-1L]
@@ -241,44 +246,54 @@ geo_object_check <- function(...,
 }
 
 # sf section ----
-#' Aggregate sf features by buffered centroids
+#' Prepare and aggregate an sf object
 #'
-#' This internal helper function aggregates features of an `sf` object by:
-#' 1. Computing the centroids (or central line) of the geometries.
-#' 2. Creating small buffer zones around these centroids.
-#' 3. Dissolving the buffers to generate aggregated "study zones".
+#' This helper function prepares and aggregates an `sf` object
+#' to produce clean, valid, and unified geometries.
 #'
-#' @param x An `sf` object (POLYGON or MULTIPOLYGON) to aggregate.
-#' @param buffer Numeric, default `10`. Buffer distance (in units of the CRS) applied around centroids.
+#' @param x An `sf` object to process.
+#' @param crs Integer. EPSG code of the target CRS. Default is `2154`.
+#' @param buffer Numeric. Buffer distance (in map units) used to merge nearby features. Default is `10`.
 #'
-#' @return An `sf` object with aggregated geometries as POLYGONs.
+#' @return An `sf` object with cleaned, projected, and aggregated geometries as `POLYGON`s.
 #'
 #' @details
-#' - The function is useful to group close features into study zones.
-#' - Output geometries are cast to `"POLYGON"` after union.
-#' - CRS and units are inherited from the input `sf` object.
+#' The function performs a complete geometric preparation workflow:
+#'
+#' 1. Geometry validation: ensures that all geometries belong to allowed classes (`POINT`, `LINE`, or `POLYGON`).
+#' 2. Geometry cleaning: invalid features are fixed with [sf::st_make_valid()], Z/M dimensions are dropped via [sf::st_zm()], and multipart geometries are cast to simple forms.
+#' 3. Reprojection: all geometries are transformed to the specified CRS using [sf::st_transform()].
+#' 4. Aggregation: small buffer zones (controlled by `buffer`) are applied to merge adjacent or overlapping features.
+#'    The buffered geometries are then dissolved with [sf::st_union()] and cast to `POLYGON` type.
+#'
+#' This process is useful for simplifying feature sets into larger contiguous study zones or analysis areas.
 #'
 #' @examples
 #' \dontrun{
 #' library(sf)
 #' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-#' zones <- geo_aggregate_light(nc, buffer = 500)
+#' zones <- geo_prepare(nc, buffer = 500)
 #' }
 #'
-#' @importFrom sf st_centroid st_geometry st_buffer st_union st_cast st_sf
+#' @importFrom sf st_make_valid st_zm st_transform st_buffer st_union st_cast st_sf
 #'
 #' @keywords internal
 #'
-geo_aggregate_light <- function(x, buffer = 10) {
-  # Centroids ou ligne centrale
-  cent <- st_centroid(st_geometry(x))
+geo_prepare <- function(x, crs = 2154, buffer = 10) {
+  # Validate geometry classes
+  geo_object_check(x, allowed_geom_classes = c("POINT", "LINE", "POLYGON"))
 
-  # Créer des petits tampons
-  buf <- st_buffer(cent, dist = buffer)
+  # Clean geometries
+  x <- silent_run(st_make_valid(x))
+  x <- silent_run(st_zm(x))
+  x <- silent_run(geo_cast(x))
+  x <- st_transform(x, crs)
 
-  # Dissoudre ces tampons pour déterminer les "zones d'étude"
-  z <- st_union(buf)
-  st_sf(st_cast(z, "POLYGON"))
+  # Aggregation
+  x <- st_buffer(x, dist = buffer)
+  x <- st_union(x)
+  x <- st_sf(st_cast(x, "POLYGON"))
+  x
 }
 
 #' Compute bounding boxes for each feature in an sf object
@@ -363,8 +378,8 @@ geo_extent <- function(x, crs = 4326) {
 #'
 geo_dep <- function(x) {
   # Reproject to EPSG:4326
-  x <- sf::st_transform(x, 4326)
-  x <- silent_run(sf::st_centroid(x))
+  x <- st_transform(x, 4326)
+  x <- silent_run(st_centroid(x))
 
   # Try to get departments safely
   dep <- tryCatch({
@@ -386,16 +401,16 @@ geo_dep <- function(x) {
   }
 
   # Join spatially to get INSEE codes
-  joined <- sf::st_join(sf::st_sf(sf::st_geometry(x)), dep[, "code_insee", drop = FALSE],
-                        join = sf::st_intersects, left = TRUE)
+  joined <- st_join(st_sf(st_geometry(x)), dep[, "code_insee", drop = FALSE],
+                        join = st_intersects, left = TRUE)
   unique(joined$code_insee)
 }
 
 #' Cast geometries to simple types
 #'
 #' This internal helper converts multi-part geometries to their single-part
-#' equivalents: MULTIPOLYGON → POLYGON, MULTILINESTRING → LINESTRING,
-#' MULTIPOINT → POINT. If the input contains mixed types, each feature is
+#' equivalents: MULTIPOLYGON became POLYGON, MULTILINESTRING became LINESTRING,
+#' MULTIPOINT became POINT. If the input contains mixed types, each feature is
 #' cast individually.
 #'
 #' @param x An `sf` object with geometries to cast.
@@ -446,33 +461,6 @@ geo_cast <- function(x) {
   do.call(rbind, x_list)
 }
 
-
-#' Prepare an sf object for processing
-#'
-#' This internal helper performs a series of preparation steps on an `sf` object:
-#' - Validates geometry types.
-#' - Fixes invalid geometries using `st_make_valid`.
-#' - Removes Z/M dimensions with `st_zm`.
-#' - Casts multi-part geometries to simple types.
-#' - Transforms the object to the specified CRS.
-#'
-#' @param x An `sf` object to prepare.
-#' @param crs EPSG code of the target CRS. Default is 2154.
-#'
-#' @return A cleaned and projected `sf` object ready for further processing.
-#'
-#' @importFrom sf st_make_valid st_zm st_transform
-#'
-#' @keywords internal
-#'
-geo_prepare <- function(x, crs = 2154) {
-  geo_object_check(x, allowed_geom_classes = c("POINT","LINE","POLYGON"))
-  x <- silent_run(st_make_valid(x))
-  x <- silent_run(st_zm(x))
-  x <- silent_run(geo_cast(x))
-  st_transform(x, crs)
-}
-
 #' Check if an sf object exceeds size or extent thresholds
 #'
 #' This internal helper evaluates whether a spatial object is too large based
@@ -509,11 +497,11 @@ geo_too_large <- function(x, area_threshold = 1e9, extent_threshold = 1.5e5, ver
   # Check thresholds
   if (!is.na(area) && as.numeric(area) > area_threshold) {
     too_large <- TRUE
-    reasons <- c(reasons, sprintf("area exceeds %.2e m² (limit %.2e)", as.numeric(area), area_threshold))
+    reasons <- c(reasons, sprintf("area exceeds %.2e m2 (limit %.2e)", as.numeric(area), area_threshold))
   }
   if (width > extent_threshold || height > extent_threshold) {
     too_large <- TRUE
-    reasons <- c(reasons, sprintf("extent %.2e × %.2e m (limit %.2e)", width, height, extent_threshold))
+    reasons <- c(reasons, sprintf("extent %.2e x %.2e m (limit %.2e)", width, height, extent_threshold))
   }
 
   # Handle output
@@ -529,32 +517,45 @@ geo_too_large <- function(x, area_threshold = 1e9, extent_threshold = 1.5e5, ver
   invisible(FALSE)
 }
 
-#' Read all shapefiles from a ZIP archive
+#' Read and reproject shapefiles from a ZIP archive
 #'
-#' This internal helper extracts a ZIP file containing shapefiles and reads
-#' all `.shp` files into a list of `sf` objects. Invalid or unreadable shapefiles
-#' are silently ignored.
+#' Extracts shapefiles from a ZIP archive, reads them into `sf` objects,
+#' and reprojects each to EPSG:2151 (Lambert-93 projection for France),
+#' unless already in the target CRS.
 #'
-#' @param zip_path Path to a ZIP archive containing shapefiles.
+#' @param zip_path `character`. Path to the ZIP archive to read.
+#' @param crs `numeric` or `sf::st_crs` object. Source CRS to assume
+#' if missing in the shapefiles. Default is 2154 (Lambert-93).
 #'
-#' @return A list of `sf` objects read from the shapefiles. Empty list if none.
+#' @return A list of `sf` objects reprojected to EPSG:2151.
 #'
-#' @importFrom sf st_read
+#' @importFrom sf st_read st_crs st_set_crs st_transform
+#' @importFrom utils unzip
 #'
 #' @keywords internal
 #'
-geo_shapefiles_read <- function(zip_path) {
+geo_shapefiles_read <- function(zip_path, crs = 2154) {
   exdir <- tempfile()
   utils::unzip(zip_path, exdir = exdir)
   shp_files <- list.files(exdir, pattern = "\\.shp$", full.names = TRUE, recursive = TRUE)
 
-  # Lire tous les shapefiles et retirer les NULL
   sf_list <- lapply(shp_files, function(shp_path) {
-    tryCatch(st_read(shp_path, quiet = TRUE), error = function(e) NULL)
+    tryCatch({
+      sf_obj <- sf::st_read(shp_path, quiet = TRUE)
+
+      # Reproject to EPSG:2154 if needed
+      if (is.na(sf::st_crs(sf_obj)$epsg)) {
+        sf_obj <- sf::st_transform(sf_obj, crs)
+      }
+
+      sf_obj
+    }, error = function(e) NULL)
   })
 
+  # Remove failed reads
   Filter(Negate(is.null), sf_list)
 }
+
 
 #' Bind multiple sf objects into a single sf
 #'
@@ -585,7 +586,7 @@ geo_sf_bind <- function(sf_list) {
   if (length(sf_list) == 0) return(NULL)
 
   # Align columns
-  ref_cols <- colnames(sf_list[[1]])
+  ref_cols <- unique(unlist(lapply(sf_list, colnames)))
   aligned <- lapply(sf_list, function(sf_obj) {
     missing <- setdiff(ref_cols, colnames(sf_obj))
     for (c in missing) sf_obj[[c]] <- NA

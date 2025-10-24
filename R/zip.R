@@ -33,10 +33,26 @@
 #' @keywords internal
 #'
 zip_query_build <- function(id, title, guid = NULL, extent_vals, crs = 2154) {
-  extent_list <- setNames(as.list(extent_vals), c("left","bottom","right","top"))
-  meta <- list(id = as.character(id), title = title)
+  extent_vals <- unname(as.numeric(extent_vals))
+  if (length(extent_vals) != 4) stop("extent_vals must have 4 numeric values: c(left, bottom, right, top)")
+
+  # extent_vals = c(left, bottom, right, top)
+  extent_list <- list(
+    left   = extent_vals[1],
+    bottom = extent_vals[2],
+    right  = extent_vals[3],
+    top    = extent_vals[4]
+  )
+
+  # Prepare metadata
+  meta <- list(
+    id = as.character(id),
+    title = title,
+    url = ""
+  )
   if (!is.null(guid)) meta$guid <- guid
 
+  # Build query
   query <- list(
     extent = extent_list,
     format = "SHP",
@@ -44,10 +60,15 @@ zip_query_build <- function(id, title, guid = NULL, extent_vals, crs = 2154) {
     md = list(meta)
   )
 
+  # Convert to JSON
   json_param <- toJSON(query, auto_unbox = TRUE)
   json_param <- gsub('\\"', "'", json_param, fixed = TRUE)
-  paste0("http://atlas.patrimoines.culture.fr/services/export.php?data=",
-         utils::URLencode(json_param, reserved = TRUE))
+
+  # URL encode
+  paste0(
+    "http://atlas.patrimoines.culture.fr/services/export.php?data=",
+    URLencode(json_param, reserved = TRUE)
+  )
 }
 
 #' Download a ZIP file from a given URL

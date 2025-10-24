@@ -14,8 +14,8 @@ An \code{sf} object with geometries cast to simple types.
 }
 \description{
 This internal helper converts multi-part geometries to their single-part
-equivalents: MULTIPOLYGON → POLYGON, MULTILINESTRING → LINESTRING,
-MULTIPOINT → POINT. If the input contains mixed types, each feature is
+equivalents: MULTIPOLYGON became POLYGON, MULTILINESTRING became LINESTRING,
+MULTIPOINT became POINT. If the input contains mixed types, each feature is
 cast individually.
 }
 \keyword{internal}
