@@ -4,7 +4,7 @@ test_that("geo_dep() retrieves the correct INSEE department code for sevres", {
   skip_if_not_installed("happign")
 
   # Load example sf object
-  sevres_path <- system.file("extdata", "sevres.Rda", package = "frheritage")
+  sevres_path <- system.file("extdata/sevres.rda", package = "frheritage")
   load(sevres_path)
   expect_s3_class(sevres, "sf")
 
