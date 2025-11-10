@@ -4,7 +4,7 @@ test_that("get_heritage_ids() works with valid sf input", {
 
   # Load the sf object from inst/extdata
   sevres_path <- system.file("extdata/sevres.rda", package = "frheritage")
-  load(sevres_path)  # loads object 'sevres'
+  load(sevres_path)
   expect_s3_class(sevres, "sf")
 
   # Mock HTTP responses
