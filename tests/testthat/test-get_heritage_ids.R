@@ -1,6 +1,7 @@
 test_that("get_heritage_ids() works with valid sf input", {
-  skip_on_cran()           # Skip on CRAN
   skip_if_not_installed("sf")
+  skip_on_cran()
+  skip_on_ci()
 
   # Load the sf object from inst/extdata
   sevres_path <- system.file("extdata/sevres.rda", package = "frheritage")
@@ -13,10 +14,6 @@ test_that("get_heritage_ids() works with valid sf input", {
     get_heritage_ids(sevres, buffer = 500, verbose = FALSE),
     error = function(e) NULL
   )
-
-  if (is.null(result) || nrow(result) == 0) {
-    skip("No heritage data retrieved — skipping test.")
-  }
 
   # Structure checks
   expect_s3_class(result, "data.frame")

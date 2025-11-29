@@ -64,58 +64,66 @@ get_heritage <- function(x,
 
   # Step 1: Validate inputs
   data_check(data_code)
+  if (length(data_code) != 1L)
+    stop("`data_code` must be a single heritage code.")
+
   spatial_filter <- geo_spatial_check(spatial_filter)
 
   # Step 2: Prepare input geometry
-  geo_too_large(x, verbose = verbose)  # Stop if geometry is too large
+  geo_too_large(x, verbose = verbose)
   y <- geo_prepare(x, crs = crs, buffer = buffer)
 
-  # Step 3: Compute extent and department
+  # Step 3: Compute extent & department
   extents <- geo_extent(y)
+  if (is.null(extents) || length(extents) != 4L)
+    stop("Invalid extent.")
+
   deps <- silent_run(geo_dep(x))
 
-  # Step 4: Filter metadata by data_code
+  # Step 4: Filter metadata for this code
   ids <- data_filter(department = deps, data_code = data_code)
 
-  # Step 5: Basic checks
-  if (is.null(extents) || length(extents) != 4)
-    stop("Invalid extent.")
-  if (nrow(ids) == 0)
-    stop("No matching IDs found.")
+  if (nrow(ids) == 0L)
+    stop("No matching IDs found for code ", data_code, ".")
 
-  # Step 6: Initialize result list
-  final_result <- list()
+  # Step 5: Only rows corresponding to the code
+  code_rows <- ids[ids$code == data_code, , drop = FALSE]
 
-  # Step 7: Loop over unique codes
-  for (code in unique(ids$code)) {
-    if (verbose) message("\nProcessing code ", code, "")
+  if (nrow(code_rows) == 0L)
+    stop("No matching IDs found for code ", data_code, ".")
 
-    code_rows <- ids[ids$code == code, , drop = FALSE]
-    code_sf <- lapply(seq_len(nrow(code_rows)), function(i) {
-      row <- code_rows[i, ]
-      url <- zip_query_build(
-        id = row$id,
-        title = row$title,
-        guid = if ("guid" %in% names(row)) row$guid else NULL,
-        extent_vals = extents,
-        crs = crs
-      )
-      if (verbose) message("Requesting ID ", row$id, " ...")
-      zip_tmp <- zip_download(url, row$id, verbose)
-      if (is.null(zip_tmp)) return(NULL)
-      geo_shapefiles_read(zip_tmp, crs = crs)
-    })
+  if (verbose) message("\nProcessing code ", data_code)
 
-    # Merge downloaded sf objects
-    merged <- geo_sf_bind(code_sf)
-    if (!is.null(merged)) final_result[[code]] <- merged
+  # Utility: download + read 1 row
+  process_row <- function(row) {
+    url <- zip_query_build(
+      id = row$id,
+      title = row$title,
+      guid = row[["guid"]],
+      extent_vals = extents,
+      crs = crs
+    )
+
+    if (verbose) message("Requesting ID ", row$id, " ...")
+
+    zip_tmp <- zip_download(url, row$id, verbose)
+    if (is.null(zip_tmp)) return(NULL)
+
+    geo_shapefiles_read(zip_tmp, crs = crs)
   }
 
-  # Step 8: Return results
-  if (length(final_result) == 1) return(final_result[[1]])
+  # Step 6: Process all rows
+  code_sf <- lapply(seq_len(nrow(code_rows)), function(i) {
+    process_row(code_rows[i, ])
+  })
 
-  if (verbose)
-    message("\nDone! Returned ", length(final_result), " sf object(s).")
+  # Step 7: Merge outputs
+  merged <- geo_sf_bind(code_sf)
 
-  final_result
+  if (is.null(merged))
+    stop("No spatial data could be retrieved for code ", data_code, ".")
+
+  if (verbose) message("\nDone! Returned one sf object.")
+
+  merged
 }
