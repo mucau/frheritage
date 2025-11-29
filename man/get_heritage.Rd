@@ -16,7 +16,7 @@ get_heritage(
 \arguments{
 \item{x}{An \code{sf} object defining the area of interest.}
 
-\item{data_code}{A \code{character} vector of heritage dataset codes to retrieve.
+\item{data_code}{A single \code{character} heritage dataset codes to retrieve.
 Valid codes can be obtained with \code{\link[=get_heritage_layernames]{get_heritage_layernames()}}.}
 
 \item{buffer}{A \code{numeric} value (default = 2500). Buffer distance in meters
@@ -31,12 +31,8 @@ predicate to filter downloaded features.}
 \item{verbose}{Logical. If \code{TRUE} (default), prints progress and diagnostic messages.}
 }
 \value{
-Either:
-\itemize{
-\item A single \code{sf} object if one heritage code was processed.
-\item A named list of \code{sf} objects if multiple codes were processed.
-}
-Returns an empty result or stops with an informative error if no matching data is found.
+A single \code{sf} object if one heritage code was processed. Returns an empty
+result or stops with an informative error if no matching data is found.
 }
 \description{
 This function retrieves and downloads spatial heritage datasets from the
