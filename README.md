@@ -69,7 +69,7 @@ The `get_heritage()` function works with the internal database `frheritage::all_
 
 ``` r
 # Just run
-devtools::install_github("mucau/frcadastre")
+devtools::install_github("mucau/frheritage")
 
 # Focus on a city
 my_sf_polygon <- frcadastre::get_etalab(72191, data="communes")
