@@ -7,7 +7,7 @@
 #' shapefiles for each requested heritage code.
 #'
 #' @param x An `sf` object defining the area of interest.
-#' @param data_code A `character` vector of heritage dataset codes to retrieve.
+#' @param data_code A single `character` heritage dataset codes to retrieve.
 #' Valid codes can be obtained with [get_heritage_layernames()].
 #' @param buffer A `numeric` value (default = 2500). Buffer distance in meters
 #' used to slightly expand geometries before querying.
@@ -33,12 +33,8 @@
 #' }
 #'
 #' @return
-#' Either:
-#' \itemize{
-#'   \item A single `sf` object if one heritage code was processed.
-#'   \item A named list of `sf` objects if multiple codes were processed.
-#' }
-#' Returns an empty result or stops with an informative error if no matching data is found.
+#' A single `sf` object if one heritage code was processed. Returns an empty
+#' result or stops with an informative error if no matching data is found.
 #'
 #' @examples
 #' \dontrun{
