@@ -2,8 +2,8 @@
 point <- sf::st_sf(geometry = sf::st_sfc(sf::st_point(c(0,0))))
 multipoint <- sf::st_sf(geometry = sf::st_sfc(sf::st_multipoint(matrix(c(0,0,1,1), ncol = 2, byrow = TRUE))))
 line <- sf::st_sf(geometry = sf::st_sfc(sf::st_linestring(matrix(c(0,0,1,1), ncol = 2, byrow = TRUE))))
-multiline <- sf::st_sf(geometry = sf::st_sfc(st_multilinestring(list(matrix(c(0,0,1,1), ncol = 2, byrow = TRUE)))))
-polygon <- sf::st_sf(geometry = sf::st_sfc(st_polygon(list(matrix(c(0,0,1,0,1,1,0,1,0,0), ncol = 2, byrow = TRUE)))))
+multiline <- sf::st_sf(geometry = sf::st_sfc(sf::st_multilinestring(list(matrix(c(0,0,1,1), ncol = 2, byrow = TRUE)))))
+polygon <- sf::st_sf(geometry = sf::st_sfc(sf::st_polygon(list(matrix(c(0,0,1,0,1,1,0,1,0,0), ncol = 2, byrow = TRUE)))))
 multipolygon <- sf::st_sf(geometry = sf::st_sfc(sf::st_multipolygon(list(list(matrix(c(0,0,1,0,1,1,0,1,0,0), ncol = 2, byrow = TRUE))))))
 
 test_that("geo_cast() converts multi-part geometries to simple types", {
