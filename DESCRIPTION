@@ -1,7 +1,7 @@
 Package: frheritage
 Title: R Interface to get french heritage data
 Version: 1.0.0
-Authors@R: 
+Authors@R:
     person("Matthieu", "Chevereau",
            email = "matthieu.chevereau@hotmail.fr",
            role = c("aut", "cre"))
