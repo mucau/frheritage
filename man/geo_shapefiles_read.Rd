@@ -2,7 +2,7 @@
 % Please edit documentation in R/geo.R
 \name{geo_shapefiles_read}
 \alias{geo_shapefiles_read}
-\title{Read and reproject shapefiles from a ZIP archive}
+\title{Read and transform shapefiles from a ZIP archive}
 \usage{
 geo_shapefiles_read(zip_path, crs = 2154)
 }
@@ -13,11 +13,11 @@ geo_shapefiles_read(zip_path, crs = 2154)
 if missing in the shapefiles. Default is 2154 (Lambert-93).}
 }
 \value{
-A list of \code{sf} objects reprojected to EPSG:2151.
+A list of \code{sf} objects transform to CRS:2154.
 }
 \description{
 Extracts shapefiles from a ZIP archive, reads them into \code{sf} objects,
-and reprojects each to EPSG:2151 (Lambert-93 projection for France),
+and transform each to CRS:2154 (Lambert-93 projection for France),
 unless already in the target CRS.
 }
 \keyword{internal}

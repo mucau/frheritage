@@ -20,7 +20,7 @@ intersecting each feature of the input \code{sf} object. It uses the
 }
 \details{
 \itemize{
-\item The input is first reprojected to EPSG:4326.
+\item The input is first transform to CRS:4326.
 \item Centroids of the features are computed before querying the WFS service.
 \item The function uses \code{\link[=silent_run]{silent_run()}} to suppress warnings/messages during processing.
 \item If the WFS query fails or returns no features, a vector of \code{NA} values is returned.

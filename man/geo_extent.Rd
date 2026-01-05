@@ -9,7 +9,7 @@ geo_extent(x, crs = 4326)
 \arguments{
 \item{x}{An \code{sf} object (POLYGON or MULTIPOLYGON) for which to compute bounding boxes.}
 
-\item{crs}{Numeric, EPSG code of the target CRS. Default is \code{4326}.}
+\item{crs}{Numeric, Code of the target CRS. Default is \code{4326}.}
 }
 \value{
 A \code{data.frame} where each row corresponds to a feature's bounding box,

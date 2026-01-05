@@ -9,7 +9,7 @@ geo_prepare(x, crs = 2154, buffer = 10)
 \arguments{
 \item{x}{An \code{sf} object to process.}
 
-\item{crs}{Integer. EPSG code of the target CRS. Default is \code{2154}.}
+\item{crs}{Integer. Code of the target CRS. Default is \code{2154}.}
 
 \item{buffer}{Numeric. Buffer distance (in map units) used to merge nearby features. Default is \code{10}.}
 }
@@ -25,7 +25,7 @@ The function performs a complete geometric preparation workflow:
 \enumerate{
 \item Geometry validation: ensures that all geometries belong to allowed classes (\code{POINT}, \code{LINE}, or \code{POLYGON}).
 \item Geometry cleaning: invalid features are fixed with \code{\link[sf:valid]{sf::st_make_valid()}}, Z/M dimensions are dropped via \code{\link[sf:st_zm]{sf::st_zm()}}, and multipart geometries are cast to simple forms.
-\item Reprojection: all geometries are transformed to the specified CRS using \code{\link[sf:st_transform]{sf::st_transform()}}.
+\item Coordinate transformation: all geometries are transformed to the specified CRS using \code{\link[sf:st_transform]{sf::st_transform()}}.
 \item Aggregation: small buffer zones (controlled by \code{buffer}) are applied to merge adjacent or overlapping features.
 The buffered geometries are then dissolved with \code{\link[sf:geos_combine]{sf::st_union()}} and cast to \code{POLYGON} type.
 }

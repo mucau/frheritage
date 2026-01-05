@@ -19,7 +19,7 @@ A \code{data.frame} with two columns:
 }
 \description{
 This function provides a reference table mapping internal codes to
-explore fastly heritage layers availables datasets from French Ministry
+explore heritage layer available datasets from French Ministry
 of Culture's "Atlas du Patrimoine".
 Optionally, it can filter the table to return only selected codes.
 }

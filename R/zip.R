@@ -8,7 +8,7 @@
 #' @param guid `character`, optional. GUID of the dataset, if available.
 #' @param extent_vals `numeric` vector of length 4. Bounding box coordinates in
 #' order: left, bottom, right, top.
-#' @param crs `numeric`, default `2154`. EPSG code for the coordinate reference
+#' @param crs `numeric`, default `2154`. CRS code for the coordinate reference
 #' system to use in the query.
 #'
 #' @return `character`. URL string for downloading the dataset in ZIP format.

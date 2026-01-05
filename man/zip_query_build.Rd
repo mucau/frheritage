@@ -16,7 +16,7 @@ zip_query_build(id, title, guid = NULL, extent_vals, crs = 2154)
 \item{extent_vals}{\code{numeric} vector of length 4. Bounding box coordinates in
 order: left, bottom, right, top.}
 
-\item{crs}{\code{numeric}, default \code{2154}. EPSG code for the coordinate reference
+\item{crs}{\code{numeric}, default \code{2154}. CRS code for the coordinate reference
 system to use in the query.}
 }
 \value{

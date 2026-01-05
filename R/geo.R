@@ -252,7 +252,7 @@ geo_object_check <- function(...,
 #' to produce clean, valid, and unified geometries.
 #'
 #' @param x An `sf` object to process.
-#' @param crs Integer. EPSG code of the target CRS. Default is `2154`.
+#' @param crs Integer. Code of the target CRS. Default is `2154`.
 #' @param buffer Numeric. Buffer distance (in map units) used to merge nearby features. Default is `10`.
 #'
 #' @return An `sf` object with cleaned, projected, and aggregated geometries as `POLYGON`s.
@@ -262,7 +262,7 @@ geo_object_check <- function(...,
 #'
 #' 1. Geometry validation: ensures that all geometries belong to allowed classes (`POINT`, `LINE`, or `POLYGON`).
 #' 2. Geometry cleaning: invalid features are fixed with [sf::st_make_valid()], Z/M dimensions are dropped via [sf::st_zm()], and multipart geometries are cast to simple forms.
-#' 3. Reprojection: all geometries are transformed to the specified CRS using [sf::st_transform()].
+#' 3. Coordinate transformation: all geometries are transformed to the specified CRS using [sf::st_transform()].
 #' 4. Aggregation: small buffer zones (controlled by `buffer`) are applied to merge adjacent or overlapping features.
 #'    The buffered geometries are then dissolved with [sf::st_union()] and cast to `POLYGON` type.
 #'
@@ -302,7 +302,7 @@ geo_prepare <- function(x, crs = 2154, buffer = 10) {
 #' for each feature in an `sf` object.
 #'
 #' @param x An `sf` object (POLYGON or MULTIPOLYGON) for which to compute bounding boxes.
-#' @param crs Numeric, EPSG code of the target CRS. Default is `4326`.
+#' @param crs Numeric, Code of the target CRS. Default is `4326`.
 #'
 #' @return A `data.frame` where each row corresponds to a feature's bounding box,
 #' with columns `left`, `bottom`, `right`, `top`.
@@ -358,7 +358,7 @@ geo_extent <- function(x, crs = 4326) {
 #' to each feature of `x`. Returns `NA` if no intersection is found.
 #'
 #' @details
-#' - The input is first reprojected to EPSG:4326.
+#' - The input is first transform to CRS:4326.
 #' - Centroids of the features are computed before querying the WFS service.
 #' - The function uses [silent_run()] to suppress warnings/messages during processing.
 #' - If the WFS query fails or returns no features, a vector of `NA` values is returned.
@@ -377,7 +377,7 @@ geo_extent <- function(x, crs = 4326) {
 #' @keywords internal
 #'
 geo_dep <- function(x) {
-  # Reproject to EPSG:4326
+  # Coordinate transformation to CRS:4326
   x <- sf::st_transform(x, 4326)
   x <- silent_run(sf::st_centroid(x))
 
@@ -518,17 +518,17 @@ geo_too_large <- function(x, area_threshold = 1e9, extent_threshold = 1.5e5, ver
   invisible(FALSE)
 }
 
-#' Read and reproject shapefiles from a ZIP archive
+#' Read and transform shapefiles from a ZIP archive
 #'
 #' Extracts shapefiles from a ZIP archive, reads them into `sf` objects,
-#' and reprojects each to EPSG:2151 (Lambert-93 projection for France),
+#' and transform each to CRS:2154 (Lambert-93 projection for France),
 #' unless already in the target CRS.
 #'
 #' @param zip_path `character`. Path to the ZIP archive to read.
 #' @param crs `numeric` or `sf::st_crs` object. Source CRS to assume
 #' if missing in the shapefiles. Default is 2154 (Lambert-93).
 #'
-#' @return A list of `sf` objects reprojected to EPSG:2151.
+#' @return A list of `sf` objects transform to CRS:2154.
 #'
 #' @importFrom sf st_read st_crs st_set_crs st_transform
 #' @importFrom utils unzip
@@ -544,7 +544,7 @@ geo_shapefiles_read <- function(zip_path, crs = 2154) {
     tryCatch({
       sf_obj <- sf::st_read(shp_path, quiet = TRUE)
 
-      # Reproject to EPSG:2154 if needed
+      # Coordinate transformation to CRS:2154 if needed
       if (is.na(sf::st_crs(sf_obj)$epsg)) {
         sf_obj <- sf::st_transform(sf_obj, crs)
       }
