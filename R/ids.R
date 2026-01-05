@@ -84,43 +84,48 @@ ids_url_build <- function(extent, insee_dep) {
 #' }
 #' Returns an empty data.frame if the request fails or no items are found.
 #'
-#' @importFrom httr2 request req_timeout req_perform resp_status resp_body_string
+#' @importFrom httr2 request req_timeout req_perform resp_status resp_body_string req_retry
 #' @importFrom xml2 read_xml xml_find_all xml_text
 #'
 #' @keywords internal
 #'
 ids_download <- function(url, timeout = 60, verbose = FALSE) {
   # Build request
-  req <- request(url) |> req_timeout(timeout)
+  req <- httr2::request(url) |>
+    httr2::req_timeout(timeout) |>
+    httr2::req_retry(
+      max_tries = 2,
+      backoff = ~5,
+      is_transient = function(resp) TRUE
+    )
 
   # Perform with retry
   res <- tryCatch(
-    req_perform(req),
+    httr2::req_perform(req),
     error = function(e) {
-      if (verbose) message("Request failed, retrying in 5s...")
-      Sys.sleep(5)
-      tryCatch(req_perform(req), error = function(e) NULL)
+      if (verbose) warning("Request failed: ", e$message)
+      NULL
     }
   )
 
   # Check response
-  if (is.null(res) || resp_status(res) != 200) {
-    if (verbose) warning("Invalid or empty response.")
+  if (is.null(res) || httr2::resp_status(res) != 200) {
+    warning("Invalid or empty response.")
     return(data.frame())
   }
 
   # Parse XML
-  xml_txt <- resp_body_string(res)
-  doc <- read_xml(xml_txt)
-  items <- xml_find_all(doc, ".//item")
+  xml_txt <- httr2::resp_body_string(res)
+  doc <- xml2::read_xml(xml_txt)
+  items <- xml2::xml_find_all(doc, ".//item")
   if (length(items) == 0) {
     if (verbose) message("No items found.")
     return(data.frame())
   }
 
   # Extract data
-  titles <- xml_text(xml_find_all(items, "./title"))
-  guids  <- xml_text(xml_find_all(items, "./guid"))
+  titles <- xml2::xml_text(xml2::xml_find_all(items, "./title"))
+  guids  <- xml2::xml_text(xml2::xml_find_all(items, "./guid"))
   ids    <- sub(".*MD_([0-9]+).*", "\\1", guids)
 
   data.frame(

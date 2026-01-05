@@ -328,11 +328,11 @@ geo_extent <- function(x, crs = 4326) {
   geo_object_check(x)
 
   # Transform to the target CRS
-  x <- st_transform(x, crs)
+  x <- sf::st_transform(x, crs)
 
   # Compute bounding boxes for each feature
-  bboxes <- do.call(rbind, lapply(st_geometry(x), function(g) {
-    bb <- st_bbox(g)
+  bboxes <- do.call(rbind, lapply(sf::st_geometry(x), function(g) {
+    bb <- sf::st_bbox(g)
     c(left = unname(bb["xmin"]),
       bottom = unname(bb["ymin"]),
       right = unname(bb["xmax"]),
@@ -378,8 +378,8 @@ geo_extent <- function(x, crs = 4326) {
 #'
 geo_dep <- function(x) {
   # Reproject to EPSG:4326
-  x <- st_transform(x, 4326)
-  x <- silent_run(st_centroid(x))
+  x <- sf::st_transform(x, 4326)
+  x <- silent_run(sf::st_centroid(x))
 
   # Try to get departments safely
   dep <- tryCatch({
@@ -401,8 +401,9 @@ geo_dep <- function(x) {
   }
 
   # Join spatially to get INSEE codes
-  joined <- st_join(st_sf(st_geometry(x)), dep[, "code_insee", drop = FALSE],
-                        join = st_intersects, left = TRUE)
+  joined <- sf::st_join(sf::st_sf(sf::st_geometry(x)),
+                        dep[, "code_insee", drop = FALSE],
+                        join = sf::st_intersects, left = TRUE)
   unique(joined$code_insee)
 }
 
@@ -424,7 +425,7 @@ geo_dep <- function(x) {
 geo_cast <- function(x) {
   geo_object_check(x, allowed_geom_classes = c("POINT", "LINE", "POLYGON"))
 
-  geom_types <- as.character(st_geometry_type(x))
+  geom_types <- as.character(sf::st_geometry_type(x))
 
   # Mapping multi-part geometries to simple equivalents
   single_map <- c(
@@ -436,7 +437,7 @@ geo_cast <- function(x) {
   # Helper to cast a single feature if needed
   cast_one <- function(obj, geom_type) {
     if (geom_type %in% names(single_map)) {
-      st_cast(obj, single_map[[geom_type]])
+      sf::st_cast(obj, single_map[[geom_type]])
     } else {
       obj
     }
@@ -447,7 +448,7 @@ geo_cast <- function(x) {
   if (length(unique_types) == 1) {
     type <- unique_types
     if (type %in% names(single_map)) {
-      x <- st_cast(x, single_map[[type]])
+      x <- sf::st_cast(x, single_map[[type]])
     }
     return(x)
   }
@@ -480,15 +481,15 @@ geo_cast <- function(x) {
 geo_too_large <- function(x, area_threshold = 1e9, extent_threshold = 1.5e5, verbose = TRUE) {
   if (!inherits(x, "sf")) stop("Input 'x' must be an sf object.")
 
-  geom_type <- unique(st_geometry_type(x))
-  bbox <- st_bbox(x)
+  geom_type <- unique(sf::st_geometry_type(x))
+  bbox <- sf::st_bbox(x)
 
   # Compute bounding box width and height
   width <- bbox["xmax"] - bbox["xmin"]
   height <- bbox["ymax"] - bbox["ymin"]
 
   # Compute approximate total area (for polygons only)
-  area <- if (any(grepl("POLYGON", geom_type))) sum(st_area(x)) else NA_real_
+  area <- if (any(grepl("POLYGON", geom_type))) sum(sf::st_area(x)) else NA_real_
 
   # Initialize checks
   too_large <- FALSE
@@ -567,8 +568,6 @@ geo_shapefiles_read <- function(zip_path, crs = 2154) {
 #'
 #' @return A single `sf` object containing all input features, or `NULL`
 #' if the input list is empty or contains no valid sf objects.
-#'
-#' @importFrom sf st_geometry
 #'
 #' @keywords internal
 #'
