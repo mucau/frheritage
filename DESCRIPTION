@@ -1,6 +1,6 @@
 Package: frheritage
 Title: R Interface to get french heritage data
-Version: 0.0.1.0
+Version: 1.0.0
 Authors@R: 
     person("Matthieu", "Chevereau", , "matthieu.chevereau@hotmail.com", role = c("aut", "cre"))
 Description: Get spatial vector data from the French cadastre portal (<http://atlas.patrimoines.culture.fr/atlas/trunk/>).
