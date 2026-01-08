@@ -386,8 +386,7 @@ geo_dep <- function(x) {
     happign::get_wfs(
       x = x,
       layer = "ADMINEXPRESS-COG.LATEST:departement",
-      filename = NULL,
-      spatial_filter = "intersects"
+      predicate = intersects()
     )
   }, error = function(e) {
     message("happign::get_wfs() failed: Please try to reduce the spatial size")
