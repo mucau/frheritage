@@ -22,7 +22,8 @@
 data_check <- function(data_code) {
   valid_codes <- get_heritage_layernames()$code
   if (!all(data_code %in% valid_codes)) {
-    stop("`data_code` must be one of: ", paste(valid_codes, collapse = ", "))
+    stop("`data_code` must be one of: ", paste(valid_codes, collapse = ", "),
+         call. = FALSE)
   }
   invisible(NULL)
 }

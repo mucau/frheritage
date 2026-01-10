@@ -1,7 +1,7 @@
 #' Retrieve and download heritage spatial data for a given sf object
 #'
 #' This function retrieves and downloads spatial heritage datasets from the
-#' French Ministry of Culture’s "Atlas du Patrimoine" GeoSource service,
+#' French Ministry of Culture’s "Atlas du Patrimoine" service,
 #' based on the spatial extent and department(s) of a given `sf` object.
 #' It first identifies relevant dataset IDs and then downloads corresponding
 #' shapefiles for each requested heritage code.
@@ -61,7 +61,7 @@ get_heritage <- function(x,
   # Step 1: Validate inputs
   data_check(data_code)
   if (length(data_code) != 1L)
-    stop("`data_code` must be a single heritage code.")
+    stop("`data_code` must be a single heritage code.", call. = FALSE)
 
   spatial_filter <- geo_spatial_check(spatial_filter)
 
@@ -72,21 +72,25 @@ get_heritage <- function(x,
   # Step 3: Compute extent & department
   extents <- geo_extent(y)
   if (is.null(extents) || length(extents) != 4L)
-    stop("Invalid extent.")
+    stop("Invalid extent.", call. = FALSE)
 
-  deps <- silent_run(geo_dep(x))
+  deps <- quiet(geo_dep(x))
+  if (is.null(deps))
+    stop("Invalid dep.", call. = FALSE)
 
   # Step 4: Filter metadata for this code
   ids <- data_filter(department = deps, data_code = data_code)
 
   if (nrow(ids) == 0L)
-    stop("No matching IDs found for code ", data_code, ".")
+    stop(paste0("No matching IDs found for code ", data_code, "."),
+         call. = FALSE)
 
   # Step 5: Only rows corresponding to the code
   code_rows <- ids[ids$code == data_code, , drop = FALSE]
 
   if (nrow(code_rows) == 0L)
-    stop("No matching IDs found for code ", data_code, ".")
+    stop(paste0("No matching IDs found for code ", data_code, "."),
+         call. = FALSE)
 
   if (verbose) message("\nProcessing code ", data_code)
 
@@ -102,8 +106,11 @@ get_heritage <- function(x,
 
     if (verbose) message("Requesting ID ", row$id, " ...")
 
-    zip_tmp <- zip_download(url, row$id, verbose)
-    if (is.null(zip_tmp)) return(NULL)
+    zip_tmp <- zip_download(url, row$id)
+    if (is.null(zip_tmp)) {
+      if (verbose) message("Failed to download ID ", row$id)
+      return(NULL)
+    }
 
     geo_shapefiles_read(zip_tmp, crs = crs)
   }
@@ -113,11 +120,17 @@ get_heritage <- function(x,
     process_row(code_rows[i, ])
   })
 
+  # Count failed downloads
+  failed <- sum(sapply(code_sf, is.null))
+  if (failed > 0 && verbose)
+    warning(failed, " ID(s) could not be retrieved.", call. = FALSE)
+
   # Step 7: Merge outputs
   merged <- geo_sf_bind(code_sf)
 
   if (is.null(merged))
-    stop("No spatial data could be retrieved for code ", data_code, ".")
+    stop(paste0("No spatial data could be retrieved for code ", data_code, "."),
+         call. = FALSE)
 
   if (verbose) message("\nDone! Returned one sf object.")
 

@@ -21,7 +21,7 @@ reference system used for spatial processing.}
 A \code{data.frame} with the following columns:
 \describe{
 \item{id}{Numeric identifier extracted from the record GUID.}
-\item{title}{Record title as published in the GeoSource service feed.}
+\item{title}{Record title as published in the service feed.}
 \item{guid}{Full GUID (unique resource identifier).}
 \item{code}{Internal code associated with the layer.}
 }
@@ -29,7 +29,7 @@ Returns an empty \code{data.frame} if no records are found or the request fails.
 }
 \description{
 This function retrieves available layer identifiers from the French Ministry
-of Culture's "Atlas du Patrimoine" GeoSource service feed, based on the
+of Culture's "Atlas du Patrimoine" service feed, based on the
 spatial extent and department(s) of a given \code{sf} object.
 }
 \details{
@@ -38,7 +38,7 @@ Internally, the function:
 \item Aggregates nearby geometries using \code{buffer} input.
 \item Determines the corresponding INSEE department code for each geometry, using \code{happign::get_wfs()}.
 \item Computes the bounding box of each geometry.
-\item Queries the "Atlas du Patrimoine" GeoSource service feed for all available metadata
+\item Queries the "Atlas du Patrimoine" service feed for all available metadata
 records (IDs, titles, GUIDs) within each bounding box.
 }
 Progress is shown for each request.

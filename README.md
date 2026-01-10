@@ -21,7 +21,7 @@ The Atlas gathers and harmonizes data from several major databases such as:
 
 -   Musees de France, Joconde, and other cultural inventories
 
-All datasets are georeferenced and available through web services and open data exports provided by the Ministry of Culture. More details and an overview of available datasets can be found at: <http://atlas.patrimoines.culture.fr/atlas/trunk/static/presentation.html>
+All datasets are available through web services and open data exports provided by the Ministry of Culture. More details and an overview of available datasets can be found at: <http://atlas.patrimoines.culture.fr/atlas/trunk/static/presentation.html>
 
 ## Citation and source
 

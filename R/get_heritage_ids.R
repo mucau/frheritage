@@ -1,7 +1,7 @@
 #' Retrieve heritage layer IDs for a given sf object
 #'
 #' This function retrieves available layer identifiers from the French Ministry
-#' of Culture's "Atlas du Patrimoine" GeoSource service feed, based on the
+#' of Culture's "Atlas du Patrimoine" service feed, based on the
 #' spatial extent and department(s) of a given `sf` object.
 #'
 #' @param x An `sf` object defining the area of interest.
@@ -17,7 +17,7 @@
 #'   \item Aggregates nearby geometries using `buffer` input.
 #'   \item Determines the corresponding INSEE department code for each geometry, using `happign::get_wfs()`.
 #'   \item Computes the bounding box of each geometry.
-#'   \item Queries the "Atlas du Patrimoine" GeoSource service feed for all available metadata
+#'   \item Queries the "Atlas du Patrimoine" service feed for all available metadata
 #'         records (IDs, titles, GUIDs) within each bounding box.
 #' }
 #' Progress is shown for each request.
@@ -26,7 +26,7 @@
 #' A `data.frame` with the following columns:
 #' \describe{
 #'   \item{id}{Numeric identifier extracted from the record GUID.}
-#'   \item{title}{Record title as published in the GeoSource service feed.}
+#'   \item{title}{Record title as published in the service feed.}
 #'   \item{guid}{Full GUID (unique resource identifier).}
 #'   \item{code}{Internal code associated with the layer.}
 #' }
@@ -53,7 +53,12 @@ get_heritage_ids <- function(x,
 
   # Step 2: Compute extents and departments
   extents <- geo_extent(y)
-  deps <- silent_run(geo_dep(x))
+  if (is.null(extents) || length(extents) != 4L)
+    stop("Invalid extent.", call. = FALSE)
+
+  deps <- quiet(geo_dep(x))
+  if (is.null(deps))
+    stop("Invalid dep.", call. = FALSE)
   if (verbose) message(sprintf("%d department(s) detected.", length(deps)))
 
   # Step 3: Build URLs
@@ -66,7 +71,7 @@ get_heritage_ids <- function(x,
 
   # Step 4: Download and parse each URL
   results <- lapply(seq_along(urls), function(i) {
-    df <- ids_download(urls[i], verbose = verbose)
+    df <- ids_download(urls[i])
     if (nrow(df) == 0 && verbose)
       message(sprintf("No result for dep %s", deps[i]))
     df
@@ -75,7 +80,7 @@ get_heritage_ids <- function(x,
   # Step 5: Combine and clean
   combined <- do.call(rbind, Filter(NROW, results))
   if (is.null(combined) || nrow(combined) == 0) {
-    warning("No heritage identifiers were retrieved.")
+    warning("No heritage identifiers were retrieved.", call. = FALSE)
     return(data.frame())
   }
 

@@ -15,8 +15,8 @@ test_that("geo_prepare() prepares and aggregates sf objects correctly", {
 
   # Run function silently on both datasets
   output <- capture.output({
-    res_sevres <- silent_run(geo_prepare(sevres, crs = 2154, buffer = 50))
-    res_hauts  <- silent_run(geo_prepare(hauts_de_seine, crs = 2154, buffer = 50))
+    res_sevres <- quiet(geo_prepare(sevres, crs = 2154, buffer = 50))
+    res_hauts  <- quiet(geo_prepare(hauts_de_seine, crs = 2154, buffer = 50))
   })
   expect_length(output, 0)
 

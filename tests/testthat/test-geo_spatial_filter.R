@@ -22,22 +22,22 @@ test_that("geo_spatial_filter() correctly applies spatial predicates", {
   x_border  <- sf::st_as_sf(data.frame(id = 3, geom = point_border))
 
   # Test: INTERSECTS finds overlapping features
-  res_intersects <- silent_run(geo_spatial_filter(polys, x_inside, "INTERSECTS"))
+  res_intersects <- quiet(geo_spatial_filter(polys, x_inside, "INTERSECTS"))
   expect_s3_class(res_intersects, "sf")
   expect_equal(nrow(res_intersects), 1)
   expect_identical(res_intersects$id, 1L)
 
   # Test: DISJOINT finds non-intersecting features
-  res_disjoint <- silent_run(geo_spatial_filter(polys, x_outside, "DISJOINT"))
+  res_disjoint <- quiet(geo_spatial_filter(polys, x_outside, "DISJOINT"))
   expect_s3_class(res_disjoint, "sf")
   expect_equal(nrow(res_disjoint), 3)
 
   # Test: WITHIN behaves correctly
-  res_within <- silent_run(geo_spatial_filter(polys, x_inside, "WITHIN"))
+  res_within <- quiet(geo_spatial_filter(polys, x_inside, "WITHIN"))
   expect_s3_class(res_within, "sf")
 
   # Test: TOUCHES detects border contact
-  res_touches <- silent_run(geo_spatial_filter(polys, x_border, "TOUCHES"))
+  res_touches <- quiet(geo_spatial_filter(polys, x_border, "TOUCHES"))
   expect_s3_class(res_touches, "sf")
 
   # Test: unsupported predicate raises an error

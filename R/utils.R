@@ -1,7 +1,7 @@
 #' Available layer datasets
 #'
 #' A dataset containing available layer datasets from the French
-#' Ministry of Culture's "Atlas du Patrimoine" GeoSource service.
+#' Ministry of Culture's "Atlas du Patrimoine" service.
 #'
 #' @format A `data.frame` with 5 columns:
 #' \describe{
@@ -45,12 +45,12 @@ NULL
 #' @examples
 #' \dontrun{
 #' # Run geo_dep silently
-#' deps <- silent_run(geo_dep(your_sf_layer))
+#' deps <- quiet(geo_dep(your_sf_layer))
 #' }
 #'
 #' @keywords internal
 #'
-silent_run <- function(expr) {
+quiet <- function(expr) {
   # Determine null file for capture.output based on OS
   null_file <- if (.Platform$OS.type == "windows") "nul" else "/dev/null"
 

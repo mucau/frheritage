@@ -1,5 +1,17 @@
 ^frheritage\.Rproj$
 ^\.Rproj\.user$
+
 ^data-raw$
 ^\.github$
+
+^README\.Rmd$
+^LICENSE\.md$
+^cran-comments\.md$
+
 ^CRAN-SUBMISSION$
+^CRAN-RELEASE$
+
+^docs$
+^pkgdown$
+
+^real-tests$

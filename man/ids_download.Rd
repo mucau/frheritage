@@ -2,25 +2,23 @@
 % Please edit documentation in R/ids.R
 \name{ids_download}
 \alias{ids_download}
-\title{Download and parse heritage metadata from a GeoSource URL}
+\title{Download and parse heritage metadata from a URL}
 \usage{
-ids_download(url, timeout = 60, verbose = FALSE)
+ids_download(url, timeout = 60)
 }
 \arguments{
-\item{url}{Character. The complete GeoSource request URL.}
+\item{url}{\code{Character.} The complete request URL.}
 
-\item{timeout}{Numeric. Request timeout in seconds (default = 60).}
-
-\item{verbose}{Logical. If TRUE, prints progress and error messages.}
+\item{timeout}{\code{Numeric.} Request timeout in seconds (default = \code{60}).}
 }
 \value{
 A \code{data.frame} with columns:
 \describe{
 \item{id}{Numeric identifier extracted from the GUID.}
-\item{title}{Record title as published in the GeoSource service.}
+\item{title}{Record title as published in the service.}
 \item{guid}{Full GUID (unique resource identifier).}
 }
-Returns an empty data.frame if the request fails or no items are found.
+Returns an empty \code{data.frame} if the request fails or no items are found.
 }
 \description{
 This internal helper performs an HTTP GET request to the given URL

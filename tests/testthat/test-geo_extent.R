@@ -15,8 +15,8 @@ test_that("geo_extent() computes bounding boxes correctly", {
 
   # Test: run silently
   output <- capture.output({
-    bb_sevres <- silent_run(geo_extent(sevres))
-    bb_hauts <- silent_run(geo_extent(hauts_de_seine, crs = 2154))
+    bb_sevres <- quiet(geo_extent(sevres))
+    bb_hauts <- quiet(geo_extent(hauts_de_seine, crs = 2154))
   })
   expect_length(output, 0)
 

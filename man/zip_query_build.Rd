@@ -23,8 +23,8 @@ system to use in the query.}
 \code{character}. URL string for downloading the dataset in ZIP format.
 }
 \description{
-Constructs a URL query to request a ZIP file containing geospatial data from
-the French Ministry of Culture's "Atlas du Patrimoine" GeoSource service.
+Constructs a URL query to request a ZIP file containing spatial data from
+the French Ministry of Culture's "Atlas du Patrimoine" service.
 }
 \details{
 \itemize{

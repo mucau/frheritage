@@ -4,17 +4,16 @@
 \alias{zip_download}
 \title{Download a ZIP file from a given URL}
 \usage{
-zip_download(url, id, verbose = TRUE)
+zip_download(url, id)
 }
 \arguments{
 \item{url}{\code{character}. URL to download the ZIP file from.}
 
 \item{id}{\code{character} or \code{numeric}. Identifier of the dataset (used for messages).}
-
-\item{verbose}{\code{logical}, default \code{TRUE}. If \code{TRUE}, prints warnings on failure.}
 }
 \value{
-\code{character} or \code{NULL}. Path to the temporary ZIP file, or \code{NULL} if download fails.
+\code{character} or \code{NULL}.
+Path to the temporary ZIP file, or \code{NULL} if download fails.
 }
 \description{
 Downloads a ZIP file from a specified URL and saves it to a temporary file.

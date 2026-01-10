@@ -13,11 +13,11 @@ defining the bounding box coordinates.}
 \item{insee_dep}{A character or numeric INSEE department code.}
 }
 \value{
-A character string containing the full URL to query the GeoSource service.
+A character string containing the full URL to query the service.
 }
 \description{
 This internal helper constructs a URL to query for the French Ministry
-of Culture's "Atlas du Patrimoine" GeoSource RSS service.
+of Culture's "Atlas du Patrimoine" RSS service.
 The URL filters data using a bounding box (\code{extent}) and an
 INSEE department code (\code{insee_dep}).
 }

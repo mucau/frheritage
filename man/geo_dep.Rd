@@ -11,7 +11,7 @@ geo_dep(x)
 }
 \value{
 A character vector with the INSEE department code corresponding
-to each feature of \code{x}. Returns \code{NA} if no intersection is found.
+to each feature of \code{x}. Returns \code{NULL} if no intersection is found.
 }
 \description{
 This internal helper retrieves the administrative department (\code{code_insee})
@@ -22,7 +22,7 @@ intersecting each feature of the input \code{sf} object. It uses the
 \itemize{
 \item The input is first transform to CRS:4326.
 \item Centroids of the features are computed before querying the WFS service.
-\item The function uses \code{\link[=silent_run]{silent_run()}} to suppress warnings/messages during processing.
+\item The function uses \code{\link[=quiet]{quiet()}} to suppress warnings/messages during processing.
 \item If the WFS query fails or returns no features, a vector of \code{NA} values is returned.
 \item The spatial join is performed using \code{\link[sf:st_join]{sf::st_join()}} with \code{st_intersects}.
 }

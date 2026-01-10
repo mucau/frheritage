@@ -19,7 +19,7 @@ all_ids
 }
 \description{
 A dataset containing available layer datasets from the French
-Ministry of Culture's "Atlas du Patrimoine" GeoSource service.
+Ministry of Culture's "Atlas du Patrimoine" service.
 }
 \details{
 Contains only data available on the 96 departments of metropolitan France.

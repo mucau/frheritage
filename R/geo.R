@@ -17,7 +17,9 @@ geo_spatial_check <- function(spatial_filter) {
   )
   spatial_filter <- toupper(spatial_filter[1])
   if (!spatial_filter %in% valid_predicates) {
-    stop("`spatial_filter` must be one of: ", paste(valid_predicates, collapse = ", "))
+    stop("`spatial_filter` must be one of: ",
+         paste(valid_predicates, collapse = ", "),
+         call. = FALSE)
   }
   return(spatial_filter)
 }
@@ -68,7 +70,8 @@ geo_spatial_filter <- function(layer, x, spatial_filter) {
   )
 
   if (is.null(idx)) {
-    stop("Invalid `spatial_filter`: must be one of INTERSECTS, DISJOINT, CONTAINS, WITHIN, TOUCHES, BBOX, CROSSES, OVERLAPS, or EQUALS.", call. = FALSE)
+    stop("Invalid `spatial_filter`: must be one of INTERSECTS, DISJOINT, CONTAINS, WITHIN, TOUCHES, BBOX, CROSSES, OVERLAPS, or EQUALS.",
+         call. = FALSE)
   }
 
   layer[lengths(idx) > 0, , drop = FALSE]
@@ -284,9 +287,9 @@ geo_prepare <- function(x, crs = 2154, buffer = 10) {
   geo_object_check(x, allowed_geom_classes = c("POINT", "LINE", "POLYGON"))
 
   # Clean geometries
-  x <- silent_run(st_make_valid(x))
-  x <- silent_run(st_zm(x))
-  x <- silent_run(geo_cast(x))
+  x <- quiet(st_make_valid(x))
+  x <- quiet(st_zm(x))
+  x <- quiet(geo_cast(x))
   x <- st_transform(x, crs)
 
   # Aggregation
@@ -355,12 +358,12 @@ geo_extent <- function(x, crs = 4326) {
 #' @param x An `sf` object defining the area(s) of interest.
 #'
 #' @return A character vector with the INSEE department code corresponding
-#' to each feature of `x`. Returns `NA` if no intersection is found.
+#' to each feature of `x`. Returns `NULL` if no intersection is found.
 #'
 #' @details
 #' - The input is first transform to CRS:4326.
 #' - Centroids of the features are computed before querying the WFS service.
-#' - The function uses [silent_run()] to suppress warnings/messages during processing.
+#' - The function uses [quiet()] to suppress warnings/messages during processing.
 #' - If the WFS query fails or returns no features, a vector of `NA` values is returned.
 #' - The spatial join is performed using [sf::st_join()] with `st_intersects`.
 #'
@@ -372,21 +375,21 @@ geo_extent <- function(x, crs = 4326) {
 #' }
 #'
 #' @importFrom sf st_transform st_centroid st_geometry st_sf st_join st_intersects
-#' @importFrom happign get_wfs
+#' @importFrom happign get_wfs intersects
 #'
 #' @keywords internal
 #'
 geo_dep <- function(x) {
   # Coordinate transformation to CRS:4326
   x <- sf::st_transform(x, 4326)
-  x <- silent_run(sf::st_centroid(x))
+  x <- quiet(sf::st_centroid(x))
 
   # Try to get departments safely
   dep <- tryCatch({
     happign::get_wfs(
       x = x,
       layer = "ADMINEXPRESS-COG.LATEST:departement",
-      predicate = intersects()
+      predicate = happign::intersects()
     )
   }, error = function(e) {
     message("happign::get_wfs() failed: Please try to reduce the spatial size")
@@ -396,7 +399,7 @@ geo_dep <- function(x) {
   # If no departments were retrieved, return NA vector
   if (is.null(dep) || nrow(dep) == 0) {
     message("No departments intersect x: Please try to reduce the spatial size")
-    return(rep(NA_character_, nrow(x)))
+    return(NULL)
   }
 
   # Join spatially to get INSEE codes
@@ -478,7 +481,7 @@ geo_cast <- function(x) {
 #' @keywords internal
 #'
 geo_too_large <- function(x, area_threshold = 1e9, extent_threshold = 1.5e5, verbose = TRUE) {
-  if (!inherits(x, "sf")) stop("Input 'x' must be an sf object.")
+  if (!inherits(x, "sf")) stop("Input 'x' must be an sf object.", call. = FALSE)
 
   geom_type <- unique(sf::st_geometry_type(x))
   bbox <- sf::st_bbox(x)

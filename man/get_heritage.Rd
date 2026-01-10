@@ -36,7 +36,7 @@ result or stops with an informative error if no matching data is found.
 }
 \description{
 This function retrieves and downloads spatial heritage datasets from the
-French Ministry of Culture’s "Atlas du Patrimoine" GeoSource service,
+French Ministry of Culture’s "Atlas du Patrimoine" service,
 based on the spatial extent and department(s) of a given \code{sf} object.
 It first identifies relevant dataset IDs and then downloads corresponding
 shapefiles for each requested heritage code.

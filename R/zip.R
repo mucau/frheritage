@@ -1,7 +1,7 @@
 #' Build a URL query to download a ZIP
 #'
-#' Constructs a URL query to request a ZIP file containing geospatial data from
-#' the French Ministry of Culture's "Atlas du Patrimoine" GeoSource service.
+#' Constructs a URL query to request a ZIP file containing spatial data from
+#' the French Ministry of Culture's "Atlas du Patrimoine" service.
 #'
 #' @param id `character` or `numeric`. Identifier of the dataset.
 #' @param title `character`. Title of the dataset.
@@ -56,12 +56,12 @@ zip_query_build <- function(id, title, guid = NULL, extent_vals, crs = 2154) {
   query <- list(
     extent = extent_list,
     format = "SHP",
-    srs = paste0("EPSG:", st_crs(crs)$epsg),
+    srs = paste0("EPSG:", sf::st_crs(crs)$epsg),
     md = list(meta)
   )
 
   # Convert to JSON
-  json_param <- toJSON(query, auto_unbox = TRUE)
+  json_param <- jsonlite::toJSON(query, auto_unbox = TRUE)
   json_param <- gsub('\\"', "'", json_param, fixed = TRUE)
 
   # URL encode
@@ -77,9 +77,9 @@ zip_query_build <- function(id, title, guid = NULL, extent_vals, crs = 2154) {
 #'
 #' @param url `character`. URL to download the ZIP file from.
 #' @param id `character` or `numeric`. Identifier of the dataset (used for messages).
-#' @param verbose `logical`, default `TRUE`. If `TRUE`, prints warnings on failure.
 #'
-#' @return `character` or `NULL`. Path to the temporary ZIP file, or `NULL` if download fails.
+#' @return `character` or `NULL`.
+#' Path to the temporary ZIP file, or `NULL` if download fails.
 #'
 #' @details
 #' - Uses `httr2` to perform the HTTP request.
@@ -96,18 +96,27 @@ zip_query_build <- function(id, title, guid = NULL, extent_vals, crs = 2154) {
 #'
 #' @keywords internal
 #'
-zip_download <- function(url, id, verbose = TRUE) {
+zip_download <- function(url, id) {
   tryCatch({
     resp <- request(url) |> req_perform()
+
     if (resp_status(resp) != 200) {
-      warning("HTTP ", resp_status(resp), " for ID ", id)
+      warning(
+        sprintf("HTTP %s for ID %s", resp_status(resp), id),
+        call. = FALSE
+      )
       return(NULL)
     }
+
     tmpf <- tempfile(fileext = ".zip")
     writeBin(resp_body_raw(resp), tmpf)
     tmpf
+
   }, error = function(e) {
-    warning("Download error for ID ", id, ": ", e$message)
-    NULL
+    warning(
+      sprintf("Download error for ID %s: %s", id, e$message),
+      call. = FALSE
+    )
+    invisible(NULL)
   })
 }
