@@ -33,10 +33,20 @@ heritage data management in France.
 - Authors@R field properly declared.
 
 ## Additional Information
-- This is the **first CRAN submission** of the package.
 - All non-English terms, including field names and documentation, are **intentional and 
   descriptive of the French heritage context**.
   
+## Resubmission
+This is a **CRAN resubmission** (second try). 
+
+In this version I have:
+
+* Changed the title as asked : 'R Interface to Get French Heritage Data'
+* Changed description to clarify goals
+* Changed .Rbuildignore to ignore some files and folder that CRAN refuse
+* Clarified function return values in documentation
+* Changed tests by using `testthat::local_mocked_bindings()`
+  
 ## R CMD check results
-0 errors | 0 warnings | 1 notes
+0 errors | 0 warnings | 0 notes
 
