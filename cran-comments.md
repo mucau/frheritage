@@ -23,7 +23,7 @@ heritage data management in France.
   only relevant to the development environment and does not affect CRAN checks.
 
 ## External Data / Network Access
-- Some functions download data from the official portals (e.g., `get_heritage_layernames()`), 
+- Some functions download data from the official portals (e.g., `get_heritage()`), 
   so examples that perform downloads are wrapped in `\donttest{}` to avoid network issues during CRAN checks.
 - All examples that require heavy computation or network access have been marked with 
   `\donttest{}` to comply with CRAN policies.
