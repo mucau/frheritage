@@ -33,8 +33,8 @@
 #' }
 #'
 #' @return
-#' A single `sf` object if one heritage code was processed. Returns an empty
-#' result or stops with an informative error if no matching data is found.
+#' A single `sf` object if one heritage code was processed.
+#' Returns an empty `sf` if no matching data is found.
 #'
 #' @examples
 #' \dontrun{
@@ -80,17 +80,22 @@ get_heritage <- function(x,
 
   # Step 4: Filter metadata for this code
   ids <- data_filter(department = deps, data_code = data_code)
+  empty_sf <- sf::st_sf(geometry = sf::st_sfc(crs = crs))
 
-  if (nrow(ids) == 0L)
-    stop(paste0("No matching IDs found for code ", data_code, "."),
-         call. = FALSE)
+  if (nrow(ids) == 0L) {
+    if (verbose)
+      message("No matching IDs found for code ", data_code)
+    return(empty_sf)
+  }
 
   # Step 5: Only rows corresponding to the code
   code_rows <- ids[ids$code == data_code, , drop = FALSE]
 
-  if (nrow(code_rows) == 0L)
-    stop(paste0("No matching IDs found for code ", data_code, "."),
-         call. = FALSE)
+  if (nrow(code_rows) == 0L){
+    if (verbose)
+      message("No matching IDs found for code ", data_code)
+    return(empty_sf)
+  }
 
   if (verbose) message("\nProcessing code ", data_code)
 
@@ -121,16 +126,19 @@ get_heritage <- function(x,
   })
 
   # Count failed downloads
-  failed <- sum(sapply(code_sf, is.null))
+  failed <- sum(vapply(code_sf, is.null, logical(1)))
   if (failed > 0 && verbose)
-    warning(failed, " ID(s) could not be retrieved.", call. = FALSE)
+    warning(failed, " ID(s) could not be retrieved; partial result returned.",
+            call. = FALSE)
 
   # Step 7: Merge outputs
-  merged <- geo_sf_bind(code_sf)
+  valid_sf <- code_sf[!vapply(code_sf, is.null, logical(1))]
+  merged <- geo_sf_bind(valid_sf)
 
-  if (is.null(merged))
-    stop(paste0("No spatial data could be retrieved for code ", data_code, "."),
-         call. = FALSE)
+  if (is.null(merged) || nrow(merged) == 0L) {
+    if (verbose) message("No spatial data retrieved for code ", data_code)
+    return(empty_sf)
+  }
 
   if (verbose) message("\nDone! Returned one sf object.")
 

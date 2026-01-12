@@ -68,7 +68,7 @@ test_that("get_heritage() stops if no department found", {
 })
 
 # Non-functional test: zip_download returns NULL
-test_that("get_heritage() stops if download fails", {
+test_that("get_heritage() returns empty sf and warning if download fails", {
   x <- sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = 4326))
 
   local_mocked_bindings(
@@ -88,11 +88,13 @@ test_that("get_heritage() stops if download fails", {
       )
     },
     zip_query_build = function(...) "http://fake-url.zip",
-    zip_download = function(...) NULL,   # simulate download failure
+    zip_download = function(...) NULL,   # échec simulé
     geo_sf_bind = function(lst) NULL,
     .package = "frheritage"
   )
 
-  expect_error(get_heritage(x, data_code = "IMMH", verbose = FALSE),
-               "No spatial data could be retrieved")
+  res <- get_heritage(x, data_code = "IMMH", verbose = FALSE)
+
+  expect_s3_class(res, "sf")
+  expect_equal(nrow(res), 0)
 })

@@ -31,8 +31,8 @@ predicate to filter downloaded features.}
 \item{verbose}{Logical. If \code{TRUE} (default), prints progress and diagnostic messages.}
 }
 \value{
-A single \code{sf} object if one heritage code was processed. Returns an empty
-result or stops with an informative error if no matching data is found.
+A single \code{sf} object if one heritage code was processed.
+Returns an empty \code{sf} if no matching data is found.
 }
 \description{
 This function retrieves and downloads spatial heritage datasets from the
