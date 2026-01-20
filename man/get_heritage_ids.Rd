@@ -44,9 +44,21 @@ records (IDs, titles, GUIDs) within each bounding box.
 Progress is shown for each request.
 }
 \examples{
-\dontrun{
-# Retrieve available heritage records for an sf object
-ids <- get_heritage_ids(my_sf_layer)
+\donttest{
+if (interactive()) {
+  # Create a minimal sf object defining the area of interest.
+  # A simple point geometry is sufficient to trigger spatial queries.
+  my_sf_layer <- sf::st_sf(
+    geometry = sf::st_sfc(
+      sf::st_point(c(2.21, 48.82)),
+      crs = 4326
+    )
+  )
+
+  # Retrieve available heritage dataset identifiers intersecting
+  # the spatial extent derived from the sf object.
+  ids <- get_heritage_ids(my_sf_layer)
+}
 }
 
 }

@@ -32,12 +32,4 @@ The buffered geometries are then dissolved with \code{\link[sf:geos_combine]{sf:
 
 This process is useful for simplifying feature sets into larger contiguous study zones or analysis areas.
 }
-\examples{
-\dontrun{
-library(sf)
-nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-zones <- geo_prepare(nc, buffer = 500)
-}
-
-}
 \keyword{internal}

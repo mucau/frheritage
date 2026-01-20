@@ -25,11 +25,4 @@ Downloads a ZIP file from a specified URL and saves it to a temporary file.
 \item Errors during download are caught and a warning is printed.
 }
 }
-\examples{
-\dontrun{
-url <- zip_query_build(123, "Example Dataset", extent_vals = c(700000, 6600000, 701000, 6601000))
-zip_file <- zip_download(url, 123)
-}
-
-}
 \keyword{internal}

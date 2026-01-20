@@ -43,14 +43,6 @@ geo_spatial_check <- function(spatial_filter) {
 #'   depending on the value of `spatial_filter`.
 #' - `"BBOX"` is treated as a simple intersection with bounding boxes.
 #'
-#' @examples
-#' \dontrun{
-#' library(sf)
-#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-#' bbox <- st_as_sfc(st_bbox(nc))
-#' geo_spatial_filter(nc, bbox, "INTERSECTS")
-#' }
-#'
 #' @importFrom sf st_intersects st_disjoint st_contains st_within st_touches
 #' @importFrom sf st_crosses st_overlaps st_equals
 #'
@@ -103,13 +95,6 @@ geo_spatial_filter <- function(layer, x, spatial_filter) {
 #' @return
 #' A single `character(1)` value representing the normalized geometry type.
 #' Possible values are: `"POINT"`, `"LINE"`, `"POLYGON"`, or `"GEOMETRY"`.
-#'
-#' @examples
-#' \dontrun{
-#' library(sf)
-#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-#' geo_object_type(nc)
-#' }
 #'
 #' @importFrom sf st_geometry_type
 #'
@@ -178,24 +163,6 @@ geo_object_type <- function(x) {
 #'
 #' @return
 #' Invisibly returns `NULL`. Throws an error if any object fails validation.
-#'
-#' @examples
-#' \dontrun{
-#' library(sf)
-#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-#'
-#' # Valid object
-#' geo_object_check(nc)
-#'
-#' # Invalid: not an sf object
-#' df <- data.frame(x = 1:3)
-#' geo_object_check(nc, df)
-#'
-#' # Invalid: empty geometry
-#' nc_invalid <- nc
-#' nc_invalid$geometry[[1]] <- st_geometrycollection()
-#' geo_object_check(nc_invalid)
-#' }
 #'
 #' @seealso [geo_object_type()]
 #'
@@ -271,13 +238,6 @@ geo_object_check <- function(...,
 #'
 #' This process is useful for simplifying feature sets into larger contiguous study zones or analysis areas.
 #'
-#' @examples
-#' \dontrun{
-#' library(sf)
-#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-#' zones <- geo_prepare(nc, buffer = 500)
-#' }
-#'
 #' @importFrom sf st_make_valid st_zm st_transform st_buffer st_union st_cast st_sf
 #'
 #' @keywords internal
@@ -314,13 +274,6 @@ geo_prepare <- function(x, crs = 2154, buffer = 10) {
 #' - The function first validates the input with [geo_object_check()].
 #' - Transforms the object to the target CRS before computing bounding boxes.
 #' - CRS and units are inherited from the input `sf` object.
-#'
-#' @examples
-#' \dontrun{
-#' library(sf)
-#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-#' geo_extent(nc, crs = 2154)
-#' }
 #'
 #' @importFrom sf st_transform st_geometry st_bbox
 #'
@@ -366,13 +319,6 @@ geo_extent <- function(x, crs = 4326) {
 #' - The function uses [quiet()] to suppress warnings/messages during processing.
 #' - If the WFS query fails or returns no features, a vector of `NA` values is returned.
 #' - The spatial join is performed using [sf::st_join()] with `st_intersects`.
-#'
-#' @examples
-#' \dontrun{
-#' library(sf)
-#' nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-#' geo_dep(nc)
-#' }
 #'
 #' @importFrom sf st_transform st_centroid st_geometry st_sf st_join st_intersects
 #' @importFrom happign get_wfs intersects

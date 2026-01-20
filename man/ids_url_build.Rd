@@ -21,11 +21,4 @@ of Culture's "Atlas du Patrimoine" RSS service.
 The URL filters data using a bounding box (\code{extent}) and an
 INSEE department code (\code{insee_dep}).
 }
-\examples{
-\dontrun{
-extent <- list(left = 1, bottom = 2, right = 3, top = 4)
-ids_url_build(extent, "75")
-}
-
-}
 \keyword{internal}

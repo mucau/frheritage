@@ -57,14 +57,27 @@ Internally, the function:
 }
 }
 \examples{
-\dontrun{
-  # Retrieve spatial data for a given sf geometry and selected heritage codes
+\donttest{
+if (interactive()) {
+  # Create a minimal sf object defining the area of interest.
+  # The geometry is used to identify relevant departments and
+  # to build spatial queries against the Atlas du Patrimoine.
+  my_sf_layer <- sf::st_sf(
+    geometry = sf::st_sfc(
+      sf::st_point(c(2.21, 48.82)),
+      crs = 4326
+    )
+  )
+
+  # Download spatial heritage data for a given heritage code.
+  # The function returns an sf object containing the retrieved features.
   heritage_data <- get_heritage(
     x = my_sf_layer,
-    data_code = c("IMMH", "SICI"),
+    data_code = "IMMH",
     buffer = 2000,
     spatial_filter = "intersects"
   )
+}
 }
 
 }

@@ -30,13 +30,4 @@ depending on the value of \code{spatial_filter}.
 \item \code{"BBOX"} is treated as a simple intersection with bounding boxes.
 }
 }
-\examples{
-\dontrun{
-library(sf)
-nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-bbox <- st_as_sfc(st_bbox(nc))
-geo_spatial_filter(nc, bbox, "INTERSECTS")
-}
-
-}
 \keyword{internal}

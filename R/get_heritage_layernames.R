@@ -30,13 +30,11 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
-#'   # Get the full table of heritage layer codes
-#'   get_heritage_layernames()
+#' # Get the full table of heritage layer codes
+#' get_heritage_layernames()
 #'
-#'   # Filter for specific codes
-#'   get_heritage_layernames(c("IMMH", "SICI"))
-#' }
+#' # Filter for specific codes
+#' get_heritage_layernames(c("IMMH", "SICI"))
 #'
 #' @export
 #' @importFrom utils data

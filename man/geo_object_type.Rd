@@ -32,12 +32,4 @@ classification:
 
 Mixed or inconsistent geometry collections are not supported.
 }
-\examples{
-\dontrun{
-library(sf)
-nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-geo_object_type(nc)
-}
-
-}
 \keyword{internal}

@@ -42,12 +42,6 @@ NULL
 #'
 #' @importFrom utils capture.output
 #'
-#' @examples
-#' \dontrun{
-#' # Run geo_dep silently
-#' deps <- quiet(geo_dep(your_sf_layer))
-#' }
-#'
 #' @keywords internal
 #'
 quiet <- function(expr) {

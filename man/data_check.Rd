@@ -21,12 +21,6 @@ Validates that provided data codes exist in the heritage layers.
 \item Throws an error if any \code{data_code} is invalid.
 }
 }
-\examples{
-\dontrun{
-data_check(c("monument", "site_archaeo"))
-}
-
-}
 \seealso{
 \code{\link[=get_heritage_layernames]{get_heritage_layernames()}}
 }

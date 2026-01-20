@@ -3,7 +3,15 @@ Title: R Interface to Get French Heritage Data
 Version: 0.1.0
 Authors@R:
     person("Matthieu", "Chevereau", , "matthieu.chevereau@hotmail.fr", role = c("aut", "cre"))
-Description: Get spatial vector data from the official national platform of the French Ministry of Culture (<http://atlas.patrimoines.culture.fr/atlas/trunk/>).
+Description: Get spatial vector data from the Atlas du Patrimoine 
+    (<http://atlas.patrimoines.culture.fr/atlas/trunk/>), 
+    the official national platform of the French Ministry of Culture, 
+    and facilitate its use within R geospatial workflows. 
+    The package provides functions to list available heritage datasets, 
+    query and retrieve heritage data using spatial queries based 
+    on user-provided sf objects, perform spatial filtering operations, 
+    and return results as sf objects suitable for spatial analysis, mapping, 
+    and integration into heritage management and landscape studies.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

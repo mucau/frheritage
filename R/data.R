@@ -12,11 +12,6 @@
 #'
 #' @seealso [get_heritage_layernames()]
 #'
-#' @examples
-#' \dontrun{
-#' data_check(c("monument", "site_archaeo"))
-#' }
-#'
 #' @keywords internal
 #'
 data_check <- function(data_code) {
@@ -42,12 +37,6 @@ data_check <- function(data_code) {
 #' @details
 #' - Uses `data_check()` to ensure that all `data_code` values are valid.
 #' - The function currently ignores the `ids` argument and always uses `frheritage::all_ids`.
-#'
-#' @examples
-#' \dontrun{
-#' # Filter IDs for department "75" and code "monument"
-#' data_filter(ids = NULL, department = "75", data_code = "monument")
-#' }
 #'
 #' @keywords internal
 #'

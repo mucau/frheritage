@@ -37,15 +37,18 @@ heritage data management in France.
   descriptive of the French heritage context**.
   
 ## Resubmission
-This is a **CRAN resubmission** (second try). 
+This is a CRAN resubmission.
 
-In this version I have:
+The following changes have been made:
 
-* Changed the title as asked : 'R Interface to Get French Heritage Data'
-* Changed description to clarify goals
-* Changed .Rbuildignore to ignore some files and folder that CRAN refuse
-* Clarified function return values in documentation
-* Changed tests by using `testthat::local_mocked_bindings()`
+* Updated `get_heritage()` to return an empty `sf` object when no data is found.
+* Expanded the package description to better document the scope, methods, and data sources.
+* Removed examples from unexported functions.
+* Replaced `\dontrun{}` with `\donttest{}` in examples for `get_heritage()` and `get_heritage_ids()`.
+* Adjusted examples requiring network access to avoid failures in non-interactive or offline environments.
+* Unwrapped the example of `get_heritage_layernames()`.
+
+These changes are corrective only; no new features were added.
   
 ## R CMD check results
 0 errors | 0 warnings | 0 notes

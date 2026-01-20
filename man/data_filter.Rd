@@ -26,11 +26,4 @@ Filters a dataset of layer IDs based on provided data codes and departments.
 \item The function currently ignores the \code{ids} argument and always uses \code{frheritage::all_ids}.
 }
 }
-\examples{
-\dontrun{
-# Filter IDs for department "75" and code "monument"
-data_filter(ids = NULL, department = "75", data_code = "monument")
-}
-
-}
 \keyword{internal}

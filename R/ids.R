@@ -14,12 +14,6 @@
 #'
 #' @importFrom utils URLencode
 #'
-#' @examples
-#' \dontrun{
-#' extent <- list(left = 1, bottom = 2, right = 3, top = 4)
-#' ids_url_build(extent, "75")
-#' }
-#'
 #' @keywords internal
 #'
 ids_url_build <- function(extent, insee_dep) {

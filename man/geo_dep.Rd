@@ -27,12 +27,4 @@ intersecting each feature of the input \code{sf} object. It uses the
 \item The spatial join is performed using \code{\link[sf:st_join]{sf::st_join()}} with \code{st_intersects}.
 }
 }
-\examples{
-\dontrun{
-library(sf)
-nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-geo_dep(nc)
-}
-
-}
 \keyword{internal}

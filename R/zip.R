@@ -18,15 +18,6 @@
 #'   then encodes it into a URL suitable for the Atlas Patrimoines export service.
 #' - CRS is converted to a string `"EPSG:<code>"`.
 #'
-#' @examples
-#' \dontrun{
-#' zip_query_build(
-#'   id = 123,
-#'   title = "Example Dataset",
-#'   extent_vals = c(700000, 6600000, 701000, 6601000)
-#' )
-#' }
-#'
 #' @importFrom jsonlite toJSON
 #' @importFrom sf st_crs
 #'
@@ -85,12 +76,6 @@ zip_query_build <- function(id, title, guid = NULL, extent_vals, crs = 2154) {
 #' - Uses `httr2` to perform the HTTP request.
 #' - If the HTTP response status is not 200, a warning is emitted and `NULL` is returned.
 #' - Errors during download are caught and a warning is printed.
-#'
-#' @examples
-#' \dontrun{
-#' url <- zip_query_build(123, "Example Dataset", extent_vals = c(700000, 6600000, 701000, 6601000))
-#' zip_file <- zip_download(url, 123)
-#' }
 #'
 #' @importFrom httr2 request req_perform resp_status resp_body_raw
 #'

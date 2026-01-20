@@ -26,12 +26,4 @@ for each feature in an \code{sf} object.
 \item CRS and units are inherited from the input \code{sf} object.
 }
 }
-\examples{
-\dontrun{
-library(sf)
-nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-geo_extent(nc, crs = 2154)
-}
-
-}
 \keyword{internal}

@@ -33,14 +33,4 @@ then encodes it into a URL suitable for the Atlas Patrimoines export service.
 \item CRS is converted to a string \code{"EPSG:<code>"}.
 }
 }
-\examples{
-\dontrun{
-zip_query_build(
-  id = 123,
-  title = "Example Dataset",
-  extent_vals = c(700000, 6600000, 701000, 6601000)
-)
-}
-
-}
 \keyword{internal}

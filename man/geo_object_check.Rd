@@ -48,25 +48,6 @@ geometric operations or API queries.
 Geometry type validation is performed via \code{\link[=geo_object_type]{geo_object_type()}}, which ensures
 type consistency across geometries.
 }
-\examples{
-\dontrun{
-library(sf)
-nc <- st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
-
-# Valid object
-geo_object_check(nc)
-
-# Invalid: not an sf object
-df <- data.frame(x = 1:3)
-geo_object_check(nc, df)
-
-# Invalid: empty geometry
-nc_invalid <- nc
-nc_invalid$geometry[[1]] <- st_geometrycollection()
-geo_object_check(nc_invalid)
-}
-
-}
 \seealso{
 \code{\link[=geo_object_type]{geo_object_type()}}
 }

@@ -23,11 +23,4 @@ while suppressing all printed output (cat, print), warnings, and messages.
 \item Works cross-platform by redirecting \code{capture.output} to \code{nul} on Windows or \verb{/dev/null} on other OS.
 }
 }
-\examples{
-\dontrun{
-# Run geo_dep silently
-deps <- quiet(geo_dep(your_sf_layer))
-}
-
-}
 \keyword{internal}
