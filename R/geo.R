@@ -334,7 +334,7 @@ geo_dep <- function(x) {
   dep <- tryCatch({
     happign::get_wfs(
       x = x,
-      layer = "ADMINEXPRESS-COG.LATEST:departement",
+      layer = "ADMINEXPRESS-COG-CARTO-PE.LATEST:departement",
       predicate = happign::intersects()
     )
   }, error = function(e) {
