@@ -59,6 +59,11 @@ get_heritage_ids <- function(x,
                              crs = 2154,
                              verbose = TRUE) {
 
+  # Step 0: Check connection
+  if (isFALSE(atlas_ok())){
+    stop("The site is not available", call. = FALSE)
+  }
+
   # Step 1: Prepare input geometry
   geo_too_large(x, verbose = verbose)  # Stop if geometry is too large
   y <- geo_prepare(x, crs = crs, buffer = buffer)

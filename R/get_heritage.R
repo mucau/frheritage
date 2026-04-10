@@ -71,6 +71,11 @@ get_heritage <- function(x,
                          spatial_filter = "intersects",
                          verbose = TRUE) {
 
+  # Step 0: Check connection
+  if (isFALSE(atlas_ok())){
+    stop("The site is not available", call. = FALSE)
+  }
+
   # Step 1: Validate inputs
   data_check(data_code)
   if (length(data_code) != 1L)
