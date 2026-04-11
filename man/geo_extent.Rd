@@ -9,15 +9,19 @@ geo_extent(x, crs = 4326)
 \arguments{
 \item{x}{An \code{sf} object (POLYGON or MULTIPOLYGON) for which to compute bounding boxes.}
 
-\item{crs}{Numeric, Code of the target CRS. Default is \code{4326}.}
+\item{crs}{Numeric or sf CRS. Target CRS used before computation (default 4326).}
 }
 \value{
-A \code{data.frame} where each row corresponds to a feature's bounding box,
-with columns \code{left}, \code{bottom}, \code{right}, \code{top}.
+A \code{data.frame} with one row per feature:
+\describe{
+\item{left}{xmin}
+\item{bottom}{ymin}
+\item{right}{xmax}
+\item{top}{ymax}
+}
 }
 \description{
-This internal helper computes the bounding box (\code{left}, \code{bottom}, \code{right}, \code{top})
-for each feature in an \code{sf} object.
+Computes one bounding box per geometry in an \code{sf} object.
 }
 \details{
 \itemize{

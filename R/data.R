@@ -45,6 +45,5 @@ data_filter <- function(ids = NULL, department, data_code) {
   if (is.null(ids)){
     ids <- frheritage::all_ids
   }
-  ids[ids[["code"]] %in% data_code & ids[["departement"]] %in% department,
-      setdiff(names(ids), "departement"), drop = FALSE]
+  ids[ids[["code"]] %in% data_code & ids[["departement"]] %in% department, , drop = FALSE]
 }

@@ -23,16 +23,19 @@ A \code{data.frame} with the following columns:
 \item{id}{Numeric identifier extracted from the record GUID.}
 \item{title}{Record title as published in the service feed.}
 \item{guid}{Full GUID (unique resource identifier).}
+\item{departement}{Department code associated with the spatial query.}
 \item{code}{Internal code associated with the layer.}
 }
 Returns an empty \code{data.frame} if no records are found or the request fails.
 }
 \description{
-This function retrieves available layer identifiers from the French Ministry
-of Culture's "Atlas du Patrimoine" service feed, based on the
-spatial extent and department(s) of a given \code{sf} object.
+This function retrieves available heritage dataset identifiers from the
+French Ministry of Culture’s "Atlas du Patrimoine" service.
 }
 \details{
+It uses the spatial extent and inferred department(s) of the input \code{sf}
+object to query the service.
+
 Internally, the function:
 \enumerate{
 \item Aggregates nearby geometries using \code{buffer} input.
@@ -41,7 +44,6 @@ Internally, the function:
 \item Queries the "Atlas du Patrimoine" service feed for all available metadata
 records (IDs, titles, GUIDs) within each bounding box.
 }
-Progress is shown for each request.
 }
 \examples{
 \donttest{

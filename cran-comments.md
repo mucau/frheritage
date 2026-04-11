@@ -1,5 +1,5 @@
 Package: frheritage
-Version: 0.1.0
+Version: 0.1.1
 
 ## Purpose
 The package provides tools to download, parse, and manage French heritage spatial vector data 
@@ -37,19 +37,14 @@ heritage data management in France.
   descriptive of the French heritage context**.
   
 ## Resubmission
-This is a CRAN resubmission.
+This is a resubmission of version 0.1.1 to CRAN.
 
-The following changes have been made:
+### Changes since previous submission
 
-* Updated `get_heritage()` to return an empty `sf` object when no data is found.
-* Expanded the package description to better document the scope, methods, and data sources.
-* Removed examples from unexported functions.
-* Replaced `\dontrun{}` with `\donttest{}` in examples for `get_heritage()` and `get_heritage_ids()`.
-* Adjusted examples requiring network access to avoid failures in non-interactive or offline environments.
-* Unwrapped the example of `get_heritage_layernames()`.
-
-These changes are corrective only; no new features were added.
+- Removed spatial filtering option due to inconsistency with upstream data source behavior.
+- Improved internal logic of `get_heritage_ids()` for better robustness and clarity.
+- Improved internal logic of `get_heritage()` to ensure consistent outputs.
+- Exported `get_deps()` to document and illustrate the processing workflow.
   
 ## R CMD check results
 0 errors | 0 warnings | 0 notes
-

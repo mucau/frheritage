@@ -1,95 +1,75 @@
-# Functional test: one valid code, returns a single sf object
 test_that("get_heritage() returns sf object with valid mocked data", {
-  # Input: simple sf point
+
   x <- sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = 4326))
 
-  # Mock dependencies
   local_mocked_bindings(
-    data_check = function(code) TRUE,
-    geo_spatial_check = function(filter) filter,
-    geo_too_large = function(x, verbose) NULL,
-    geo_prepare = function(x, crs, buffer) x,
-    geo_extent = function(y) c(2.1, 48.7, 2.3, 48.9),
-    geo_dep = function(x) c("92"),
-    data_filter = function(department, data_code) {
-      data.frame(
-        id = c("1", "2"),
-        title = c("Title 1", "Title 2"),
-        guid = c("G1", "G2"),
-        code = data_code,
-        stringsAsFactors = FALSE
+    atlas_ok = function() TRUE,
+
+    get_deps = function(x) c("92"),
+
+    zip_query_build = function(...) "http://fake-url.zip",
+    zip_download = function(...) system.file("extdata/file4d441aa75cf1.zip", package = "frheritage"),
+
+    geo_shapefile_read = function(zip_tmp, crs) {
+      sf::st_sf(
+        id = "1",
+        geometry = sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = crs)
       )
     },
-    zip_query_build = function(id, title, guid, extent_vals, crs) "http://fake-url.zip",
-    zip_download = function(url, id, verbose) system.file("extdata/file4d441aa75cf1.zip", package = "frheritage"),
-    geo_shapefiles_read = function(zip_tmp, crs) sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = crs)),
+
     geo_sf_bind = function(lst) do.call(rbind, lst),
+
     .package = "frheritage"
   )
 
   res <- get_heritage(x, data_code = "IMMH", verbose = FALSE)
 
   expect_s3_class(res, "sf")
-  expect_equal(nrow(res), 2)  # two rows because data_filter mocked two IDs
+  expect_equal(nrow(res), 1)
 })
 
-# Non-functional test: invalid extent triggers stop
 test_that("get_heritage() stops if extent is invalid", {
+
   x <- sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = 4326))
 
   local_mocked_bindings(
-    data_check = function(code) TRUE,
-    geo_spatial_check = function(filter) filter,
-    geo_too_large = function(x, verbose) NULL,
-    geo_prepare = function(x, crs, buffer) x,
+    atlas_ok = function() TRUE,
     geo_extent = function(y) NULL,
-    geo_dep = function(x) c("92"),
+    get_deps = function(x) c("92"),
     .package = "frheritage"
   )
 
-  expect_error(get_heritage(x, data_code = "IMMH"), "Invalid extent")
+  expect_error(
+    get_heritage(x, data_code = "IMMH"),
+    "Invalid extents"
+  )
 })
 
-# Non-functional test: no department triggers stop
 test_that("get_heritage() stops if no department found", {
+
   x <- sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = 4326))
 
   local_mocked_bindings(
-    data_check = function(code) TRUE,
-    geo_spatial_check = function(filter) filter,
-    geo_too_large = function(x, verbose) NULL,
-    geo_prepare = function(x, crs, buffer) x,
-    geo_extent = function(y) c(2.1, 48.7, 2.3, 48.9),
-    geo_dep = function(x) NULL,
+    atlas_ok = function() TRUE,
+    get_deps = function(x) NULL,
     .package = "frheritage"
   )
 
-  expect_error(get_heritage(x, data_code = "IMMH"), "Invalid dep")
+  expect_error(
+    get_heritage(x, data_code = "IMMH"),
+    "At least one geometry has no department"
+  )
 })
 
-# Non-functional test: zip_download returns NULL
 test_that("get_heritage() returns empty sf and warning if download fails", {
+
   x <- sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = 4326))
 
   local_mocked_bindings(
-    data_check = function(code) TRUE,
-    geo_spatial_check = function(filter) filter,
-    geo_too_large = function(x, verbose) NULL,
-    geo_prepare = function(x, crs, buffer) x,
-    geo_extent = function(y) c(2.1, 48.7, 2.3, 48.9),
-    geo_dep = function(x) c("92"),
-    data_filter = function(department, data_code) {
-      data.frame(
-        id = "1",
-        title = "Title 1",
-        guid = "G1",
-        code = data_code,
-        stringsAsFactors = FALSE
-      )
-    },
+    atlas_ok = function() TRUE,
+    get_deps = function(x) c("92"),
     zip_query_build = function(...) "http://fake-url.zip",
-    zip_download = function(...) NULL,   # échec simulé
-    geo_sf_bind = function(lst) NULL,
+    zip_download = function(...) NULL,
     .package = "frheritage"
   )
 
@@ -97,4 +77,98 @@ test_that("get_heritage() returns empty sf and warning if download fails", {
 
   expect_s3_class(res, "sf")
   expect_equal(nrow(res), 0)
+})
+
+test_that("get_heritage() fails with multiple data_code", {
+
+  x <- sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = 4326))
+
+  local_mocked_bindings(
+    atlas_ok = function() TRUE,
+    .package = "frheritage"
+  )
+
+  expect_error(
+    get_heritage(x, data_code = c("A", "B")),
+    "`data_code` must be one of:"
+  )
+})
+
+test_that("get_heritage() returns empty sf if no IDs found", {
+
+  x <- sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = 4326))
+
+  local_mocked_bindings(
+    atlas_ok = function() TRUE,
+    get_deps = function(...) "92",
+    data_filter = function(...) data.frame(),
+    .package = "frheritage"
+  )
+
+  res <- get_heritage(x, data_code = "IMMH", verbose = FALSE)
+
+  expect_s3_class(res, "sf")
+  expect_equal(nrow(res), 0)
+})
+
+test_that("get_heritage() handles no matching code rows", {
+
+  x <- sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = 4326))
+
+  local_mocked_bindings(
+    atlas_ok = function() TRUE,
+    get_deps = function(...) "92",
+    data_filter = function(...) {
+      data.frame(
+        id = "1",
+        title = "t",
+        guid = "g",
+        departement = "OTHER"
+      )
+    },
+    .package = "frheritage"
+  )
+
+  res <- get_heritage(x, data_code = "IMMH", verbose = FALSE)
+
+  expect_s3_class(res, "sf")
+  expect_equal(nrow(res), 0)
+})
+
+test_that("get_heritage() returns empty sf if all downloads fail", {
+
+  x <- sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = 4326))
+
+  local_mocked_bindings(
+    atlas_ok = function() TRUE,
+    get_deps = function(...) "92",
+    zip_download = function(...) NULL,
+    geo_sf_bind = function(...) NULL,
+    .package = "frheritage"
+  )
+
+  res <- get_heritage(x, data_code = "IMMH", verbose = FALSE)
+
+  expect_equal(nrow(res), 0)
+})
+
+test_that("get_heritage() warns on partial download failure", {
+
+  x <- sf::st_as_sf(sf::st_sfc(sf::st_point(c(2.2, 48.8)), crs = 4326))
+
+  local_mocked_bindings(
+    atlas_ok = function() TRUE,
+    get_deps = function(...) "92",
+    zip_download = function(url, id) if (id == "1") "ok" else NULL,
+    geo_shapefile_read = function(...) sf::st_as_sf(sf::st_sfc(sf::st_point(c(0,0)), crs = 2154)),
+    geo_sf_bind = function(lst) do.call(rbind, lst),
+    .package = "frheritage"
+  )
+
+  expect_message(
+    res <- get_heritage(x, data_code = "IMMH", verbose = TRUE),
+    "could not be retrieved|Download failed|Empty/invalid"
+  ) |> quiet()
+
+  expect_s3_class(res, "sf")
 })

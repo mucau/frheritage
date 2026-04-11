@@ -1,75 +1,4 @@
-# spatial filter section ----
-#' Validate a spatial predicate string
-#'
-#' Checks that the provided spatial filter is one of the allowed OGC predicates.
-#'
-#' @param spatial_filter `character`. Spatial predicate to validate.
-#'
-#' @return `character`. The validated predicate in uppercase.
-#'
-#' @keywords internal
-#'
-geo_spatial_check <- function(spatial_filter) {
-  valid_predicates <- c(
-    "INTERSECTS", "DISJOINT", "CONTAINS", "WITHIN",
-    "TOUCHES", "BBOX", "CROSSES", "OVERLAPS",
-    "EQUALS", "RELATE", "DWITHIN", "BEYOND"
-  )
-  spatial_filter <- toupper(spatial_filter[1])
-  if (!spatial_filter %in% valid_predicates) {
-    stop("`spatial_filter` must be one of: ",
-         paste(valid_predicates, collapse = ", "),
-         call. = FALSE)
-  }
-  return(spatial_filter)
-}
-
-#' Filter an sf layer by spatial relationship
-#'
-#' This internal helper function filters features of an `sf` layer based on
-#' a specified spatial relationship with another `sf` object.
-#'
-#' @param layer An `sf` object to be filtered.
-#' @param x An `sf` object used as reference for the spatial relationship.
-#' @param spatial_filter Character. The spatial predicate to apply. Must be one of:
-#' `"INTERSECTS"`, `"DISJOINT"`, `"CONTAINS"`, `"WITHIN"`,
-#' `"TOUCHES"`, `"BBOX"`, `"CROSSES"`, `"OVERLAPS"`, `"EQUALS"`.
-#'
-#' @return A subset of `layer` where features satisfy the specified spatial predicate
-#' with respect to `x`.
-#'
-#' @details
-#' - Uses [sf::st_intersects()], [sf::st_disjoint()], [sf::st_contains()], etc.
-#'   depending on the value of `spatial_filter`.
-#' - `"BBOX"` is treated as a simple intersection with bounding boxes.
-#'
-#' @importFrom sf st_intersects st_disjoint st_contains st_within st_touches
-#' @importFrom sf st_crosses st_overlaps st_equals
-#'
-#' @keywords internal
-#'
-geo_spatial_filter <- function(layer, x, spatial_filter) {
-  idx <- switch(spatial_filter,
-                "INTERSECTS" = sf::st_intersects(layer, x),
-                "DISJOINT"   = sf::st_disjoint(layer, x),
-                "CONTAINS"   = sf::st_contains(layer, x),
-                "WITHIN"     = sf::st_within(layer, x),
-                "TOUCHES"    = sf::st_touches(layer, x),
-                "BBOX"       = sf::st_intersects(layer, x, sparse = TRUE),
-                "CROSSES"    = sf::st_crosses(layer, x),
-                "OVERLAPS"   = sf::st_overlaps(layer, x),
-                "EQUALS"     = sf::st_equals(layer, x)
-  )
-
-  if (is.null(idx)) {
-    stop("Invalid `spatial_filter`: must be one of INTERSECTS, DISJOINT, CONTAINS, WITHIN, TOUCHES, BBOX, CROSSES, OVERLAPS, or EQUALS.",
-         call. = FALSE)
-  }
-
-  layer[lengths(idx) > 0, , drop = FALSE]
-}
-
-# geometry type section-
+# geometry type section ----
 #' Determine the geometry type of an `sf` object
 #'
 #' This internal helper function identifies and normalizes the geometry type
@@ -253,22 +182,28 @@ geo_prepare <- function(x, crs = 2154, buffer = 10) {
   x <- st_transform(x, crs)
 
   # Aggregation
+  buffer <- max(10, buffer)
   x <- st_buffer(x, dist = buffer)
   x <- st_union(x)
-  x <- st_sf(st_cast(x, "POLYGON"))
+  x <- st_sf(st_cast(x, "POLYGON", warn = FALSE))
+  x <- quiet(st_make_valid(x))
   x
 }
 
 #' Compute bounding boxes for each feature in an sf object
 #'
-#' This internal helper computes the bounding box (`left`, `bottom`, `right`, `top`)
-#' for each feature in an `sf` object.
+#' Computes one bounding box per geometry in an `sf` object.
 #'
 #' @param x An `sf` object (POLYGON or MULTIPOLYGON) for which to compute bounding boxes.
-#' @param crs Numeric, Code of the target CRS. Default is `4326`.
+#' @param crs Numeric or sf CRS. Target CRS used before computation (default 4326).
 #'
-#' @return A `data.frame` where each row corresponds to a feature's bounding box,
-#' with columns `left`, `bottom`, `right`, `top`.
+#' @return A `data.frame` with one row per feature:
+#' \describe{
+#'   \item{left}{xmin}
+#'   \item{bottom}{ymin}
+#'   \item{right}{xmax}
+#'   \item{top}{ymax}
+#' }
 #'
 #' @details
 #' - The function first validates the input with [geo_object_check()].
@@ -280,79 +215,36 @@ geo_prepare <- function(x, crs = 2154, buffer = 10) {
 #' @keywords internal
 #'
 geo_extent <- function(x, crs = 4326) {
-  # Check that x is a valid sf object
+
   geo_object_check(x)
 
-  # Transform to the target CRS
   x <- sf::st_transform(x, crs)
 
-  # Compute bounding boxes for each feature
-  bboxes <- do.call(rbind, lapply(sf::st_geometry(x), function(g) {
-    bb <- sf::st_bbox(g)
-    c(left = unname(bb["xmin"]),
-      bottom = unname(bb["ymin"]),
-      right = unname(bb["xmax"]),
-      top = unname(bb["ymax"]))
-  }))
+  geoms <- sf::st_geometry(x)
 
-  # Ensure proper data frame structure
-  bboxes <- as.data.frame(bboxes)
-  colnames(bboxes) <- c("left", "bottom", "right", "top")
-
-  return(bboxes)
-}
-
-#' Retrieve INSEE department codes for each feature in an sf object
-#'
-#' This internal helper retrieves the administrative department (`code_insee`)
-#' intersecting each feature of the input `sf` object. It uses the
-#' *Admin Express COG* WFS service from IGN via the **happign** package.
-#'
-#' @param x An `sf` object defining the area(s) of interest.
-#'
-#' @return A character vector with the INSEE department code corresponding
-#' to each feature of `x`. Returns `NULL` if no intersection is found.
-#'
-#' @details
-#' - The input is first transform to CRS:4326.
-#' - Centroids of the features are computed before querying the WFS service.
-#' - The function uses [quiet()] to suppress warnings/messages during processing.
-#' - If the WFS query fails or returns no features, a vector of `NA` values is returned.
-#' - The spatial join is performed using [sf::st_join()] with `st_intersects`.
-#'
-#' @importFrom sf st_transform st_centroid st_geometry st_sf st_join st_intersects
-#' @importFrom happign get_wfs intersects
-#'
-#' @keywords internal
-#'
-geo_dep <- function(x) {
-  # Coordinate transformation to CRS:4326
-  x <- sf::st_transform(x, 4326)
-  x <- quiet(sf::st_centroid(x))
-
-  # Try to get departments safely
-  dep <- tryCatch({
-    happign::get_wfs(
-      x = x,
-      layer = "ADMINEXPRESS-COG-CARTO-PE.LATEST:departement",
-      predicate = happign::intersects()
+  if (length(geoms) == 0L) {
+    return(
+      data.frame(
+        left = numeric(0),
+        bottom = numeric(0),
+        right = numeric(0),
+        top = numeric(0)
+      )
     )
-  }, error = function(e) {
-    message("happign::get_wfs() failed: Please try to reduce the spatial size")
-    return(NULL)
-  })
-
-  # If no departments were retrieved, return NA vector
-  if (is.null(dep) || nrow(dep) == 0) {
-    message("No departments intersect x: Please try to reduce the spatial size")
-    return(NULL)
   }
 
-  # Join spatially to get INSEE codes
-  joined <- sf::st_join(sf::st_sf(sf::st_geometry(x)),
-                        dep[, "code_insee", drop = FALSE],
-                        join = sf::st_intersects, left = TRUE)
-  unique(joined$code_insee)
+  res <- lapply(geoms, function(g) {
+    bb <- sf::st_bbox(g)
+
+    data.frame(
+      left   = unname(bb["xmin"]),
+      bottom = unname(bb["ymin"]),
+      right  = unname(bb["xmax"]),
+      top    = unname(bb["ymax"])
+    )
+  })
+
+  do.call(rbind, res)
 }
 
 #' Cast geometries to simple types
@@ -410,99 +302,62 @@ geo_cast <- function(x) {
   do.call(rbind, x_list)
 }
 
-#' Check if an sf object exceeds size or extent thresholds
+#' Read and transform shapefile from a ZIP archive
 #'
-#' This internal helper evaluates whether a spatial object is too large based
-#' on area (for polygons) and bounding box dimensions.
-#'
-#' @param x An `sf` object to check.
-#' @param area_threshold Numeric. Maximum allowed area in m2 (for polygon geometries). Default is 1e9.
-#' @param extent_threshold Numeric. Maximum allowed bounding box width or height in meters. Default is 1.5e5.
-#' @param verbose Logical. If `TRUE`, prints a message when the object is within limits.
-#'
-#' @return Invisibly returns `FALSE` if within limits. Throws an error if thresholds are exceeded.
-#'
-#' @importFrom sf st_geometry_type st_bbox st_area
-#'
-#' @keywords internal
-#'
-geo_too_large <- function(x, area_threshold = 1e9, extent_threshold = 1.5e5, verbose = TRUE) {
-  if (!inherits(x, "sf")) stop("Input 'x' must be an sf object.", call. = FALSE)
-
-  geom_type <- unique(sf::st_geometry_type(x))
-  bbox <- sf::st_bbox(x)
-
-  # Compute bounding box width and height
-  width <- bbox["xmax"] - bbox["xmin"]
-  height <- bbox["ymax"] - bbox["ymin"]
-
-  # Compute approximate total area (for polygons only)
-  area <- if (any(grepl("POLYGON", geom_type))) sum(sf::st_area(x)) else NA_real_
-
-  # Initialize checks
-  too_large <- FALSE
-  reasons <- character(0)
-
-  # Check thresholds
-  if (!is.na(area) && as.numeric(area) > area_threshold) {
-    too_large <- TRUE
-    reasons <- c(reasons, sprintf("area exceeds %.2e m2 (limit %.2e)", as.numeric(area), area_threshold))
-  }
-  if (width > extent_threshold || height > extent_threshold) {
-    too_large <- TRUE
-    reasons <- c(reasons, sprintf("extent %.2e x %.2e m (limit %.2e)", width, height, extent_threshold))
-  }
-
-  # Handle output
-  if (too_large) {
-    stop(
-      paste0("Spatial object too large: ", paste(reasons, collapse = "; ")),
-      call. = FALSE
-    )
-  } else if (verbose) {
-    message("Spatial object within acceptable size limits.")
-  }
-
-  invisible(FALSE)
-}
-
-#' Read and transform shapefiles from a ZIP archive
-#'
-#' Extracts shapefiles from a ZIP archive, reads them into `sf` objects,
-#' and transform each to CRS:2154 (Lambert-93 projection for France),
-#' unless already in the target CRS.
+#' Extracts shapefiles from a ZIP archive, reads the shapefile found
+#' in the "documents" folder into an `sf` object, and transforms it to
+#' CRS:2154 (Lambert-93 projection for France), unless already in the target CRS.
 #'
 #' @param zip_path `character`. Path to the ZIP archive to read.
-#' @param crs `numeric` or `sf::st_crs` object. Source CRS to assume
-#' if missing in the shapefiles. Default is 2154 (Lambert-93).
+#' @param crs `numeric` or `sf::st_crs` object. Target CRS to transform to.
+#' Default is 2154 (Lambert-93).
 #'
-#' @return A list of `sf` objects transform to CRS:2154.
+#' @return An `sf` object transformed to CRS:2154.
 #'
 #' @importFrom sf st_read st_crs st_set_crs st_transform
 #' @importFrom utils unzip
 #'
 #' @keywords internal
 #'
-geo_shapefiles_read <- function(zip_path, crs = 2154) {
+geo_shapefile_read <- function(zip_path, crs = 2154) {
+  # Extract ZIP to temporary directory
   exdir <- tempfile()
   utils::unzip(zip_path, exdir = exdir)
-  shp_files <- list.files(exdir, pattern = "\\.shp$", full.names = TRUE, recursive = TRUE)
 
-  sf_list <- lapply(shp_files, function(shp_path) {
-    tryCatch({
-      sf_obj <- sf::st_read(shp_path, quiet = TRUE)
+  # Find documents folder (could be at root or inside subdirectories)
+  all_dirs <- list.dirs(exdir, recursive = TRUE, full.names = TRUE)
+  documents_dir <- all_dirs[grepl("/documents$|\\\\documents$", all_dirs)]
 
-      # Coordinate transformation to CRS:2154 if needed
-      if (is.na(sf::st_crs(sf_obj)$epsg)) {
-        sf_obj <- sf::st_transform(sf_obj, crs)
-      }
+  # Check if documents folder exists
+  if (length(documents_dir) == 0) {
+    stop("The 'documents' folder does not exist in the ZIP archive")
+  }
+  documents_dir <- documents_dir[1]
 
-      sf_obj
-    }, error = function(e) NULL)
-  })
+  if (!dir.exists(documents_dir)) {
+    stop("The 'documents' folder does not exist in the ZIP archive")
+  }
 
-  # Remove failed reads
-  Filter(Negate(is.null), sf_list)
+  # Find all shapefiles in documents folder
+  shp_files <- list.files(documents_dir, pattern = "\\.shp$", full.names = TRUE, recursive = FALSE)
+
+  # Check if there's exactly one shapefile
+  if (length(shp_files) == 0) {
+    stop("No shapefile (.shp) found in the 'documents' folder")
+  }
+  if (length(shp_files) > 1) {
+    stop("Multiple shapefiles found in the 'documents' folder. Expected exactly one.")
+  }
+
+  # Read the shapefile
+  sf_obj <- sf::st_read(shp_files[1], quiet = TRUE)
+
+  # Transform to target CRS if needed
+  if (is.na(sf::st_crs(sf_obj)$epsg) || sf::st_crs(sf_obj)$epsg != crs) {
+    sf_obj <- sf::st_transform(sf_obj, crs)
+  }
+
+  return(sf_obj)
 }
 
 

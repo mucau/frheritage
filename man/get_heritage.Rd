@@ -4,14 +4,7 @@
 \alias{get_heritage}
 \title{Retrieve and download heritage spatial data for a given sf object}
 \usage{
-get_heritage(
-  x,
-  data_code,
-  buffer = 2500,
-  crs = 2154,
-  spatial_filter = "intersects",
-  verbose = TRUE
-)
+get_heritage(x, data_code, buffer = 2500, crs = 2154, verbose = TRUE)
 }
 \arguments{
 \item{x}{An \code{sf} object defining the area of interest.}
@@ -25,43 +18,43 @@ used to slightly expand geometries before querying.}
 \item{crs}{An \code{integer} or \code{sf::st_crs} object (default = 2154). Coordinate
 reference system used for spatial processing.}
 
-\item{spatial_filter}{A \code{character} string (default = \code{"intersects"}). Spatial
-predicate to filter downloaded features.}
-
 \item{verbose}{Logical. If \code{TRUE} (default), prints progress and diagnostic messages.}
 }
 \value{
-A single \code{sf} object if one heritage code was processed.
-Returns an empty \code{sf} if no matching data is found.
+A single \code{sf} object containing all retrieved heritage features.
+Returns an empty \code{sf} object if no data is found or all requests fail.
 }
 \description{
 This function retrieves and downloads spatial heritage datasets from the
-French Ministry of Culture’s "Atlas du Patrimoine" service,
-based on the spatial extent and department(s) of a given \code{sf} object.
-It first identifies relevant dataset IDs and then downloads corresponding
-shapefiles for each requested heritage code.
+French Ministry of Culture’s "Atlas du Patrimoine" service.
 }
 \details{
-This functions only works for the 96 departments of metropolitan France.
+It uses the spatial extent and inferred department(s) of the input \code{sf}
+object to query an internal registry of heritage datasets, then downloads
+and merges the corresponding spatial layers.
+
+This function currently supports metropolitan France departments (96 units).
 
 Internally, the function:
 \enumerate{
-\item Validates the requested heritage codes.
-\item Checks the spatial filter.
-\item Prepares the geometry and aggregates nearby geometries using \code{buffer} input.
-\item Determines the corresponding INSEE department code for each geometry, using \code{happign::get_wfs()}.
-\item Computes the bounding box of each geometry.
-\item Filters layers ids for the requested \code{data_code} by using \code{frheritage::all_ids}.
-\item Builds the URL and downloads the zip archive containing the shapefiles.
-\item Reads and merges shapefiles into \code{sf} objects.
+\item Validates the input \code{data_code} against an internal registry.
+\item Prepares and optionally buffers the input geometry.
+\item Computes spatial extents (bounding boxes) for each feature.
+\item Assigns each feature to one or more administrative departments.
+\item Filters available heritage records using an internal dataset registry.
+\item Builds query URLs for the Atlas du Patrimoine service.
+\item Downloads ZIP archives containing shapefiles.
+\item Reads, validates, and merges the resulting \code{sf} objects.
 }
+
+Partial failures are tolerated: invalid or empty responses for individual
+requests are skipped.
 }
 \examples{
 \donttest{
 if (interactive()) {
-  # Create a minimal sf object defining the area of interest.
-  # The geometry is used to identify relevant departments and
-  # to build spatial queries against the Atlas du Patrimoine.
+
+  # Define a minimal spatial object (WGS84 point)
   my_sf_layer <- sf::st_sf(
     geometry = sf::st_sfc(
       sf::st_point(c(2.21, 48.82)),
@@ -69,14 +62,15 @@ if (interactive()) {
     )
   )
 
-  # Download spatial heritage data for a given heritage code.
-  # The function returns an sf object containing the retrieved features.
-  heritage_data <- get_heritage(
+  # Retrieve heritage spatial data
+  res <- get_heritage(
     x = my_sf_layer,
     data_code = "IMMH",
     buffer = 2000,
-    spatial_filter = "intersects"
+    crs = 2154,
+    verbose = TRUE
   )
+
 }
 }
 

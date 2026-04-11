@@ -88,7 +88,9 @@ ids_download <- function(url, timeout = 60) {
     httr2::req_retry(
       max_tries = 2,
       backoff = ~5,
-      is_transient = function(resp) TRUE
+      is_transient = function(resp) {
+        httr2::resp_status(resp) >= 500
+      }
     ) |>
     quiet()
 
@@ -109,7 +111,18 @@ ids_download <- function(url, timeout = 60) {
 
   # Parse XML
   xml_txt <- httr2::resp_body_string(res)
-  doc <- xml2::read_xml(xml_txt)
+
+  # Retrieve doc
+  doc <- tryCatch(
+    xml2::read_xml(xml_txt),
+    error = function(e) {
+      warning("XML parsing failed: ", e$message)
+      return(NULL)
+    }
+  )
+  if (is.null(doc)) return(data.frame())
+
+  # Retrieve items
   items <- xml2::xml_find_all(doc, ".//item")
   if (length(items) == 0) {
     warning("No items found.")
@@ -117,16 +130,29 @@ ids_download <- function(url, timeout = 60) {
   }
 
   # Extract data
-  titles <- xml2::xml_text(xml2::xml_find_all(items, "./title"))
-  guids  <- xml2::xml_text(xml2::xml_find_all(items, "./guid"))
-  ids    <- sub(".*MD_([0-9]+).*", "\\1", guids)
+  rows <- lapply(items, function(item) {
 
-  data.frame(
-    id = ids,
-    title = titles,
-    guid = guids,
-    stringsAsFactors = FALSE
-  )
+    title <- xml2::xml_text(xml2::xml_find_first(item, "./title"))
+    guid  <- xml2::xml_text(xml2::xml_find_first(item, "./guid"))
+
+    id <- sub(".*MD_([0-9]+).*", "\\1", guid)
+
+    data.frame(
+      id = id,
+      title = title,
+      guid = guid,
+      stringsAsFactors = FALSE
+    )
+  })
+
+  df <- do.call(rbind, rows)
+
+  if (nrow(df) == 0 || all(is.na(df$id))) {
+    warning("No valid IDs extracted.")
+    return(data.frame())
+  }
+
+  return(df)
 }
 
 

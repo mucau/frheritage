@@ -28,12 +28,3 @@ test_that("data_filter() uses all_ids if ids is NULL", {
   expect_s3_class(res, "data.frame")
 })
 
-test_that("data_filter() excludes 'departement' column in output", {
-  sample_row <- frheritage::all_ids[1, , drop = FALSE]
-  code_val <- sample_row$code
-  dept_val <- sample_row$departement
-
-  res <- data_filter(department = dept_val, data_code = code_val)
-  expect_false("departement" %in% colnames(res))
-})
-

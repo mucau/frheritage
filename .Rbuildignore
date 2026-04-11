@@ -1,3 +1,8 @@
+^\.git$
+^\.gitignore$
+^\.Rhistory$
+^\.RData$
+
 ^frheritage\.Rproj$
 ^\.Rproj\.user$
 
