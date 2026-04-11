@@ -76,7 +76,7 @@ get_heritage <- function(x,
 
   # Check whether the external Atlas service is available before any processing.
   # This avoids running expensive spatial operations if the backend is unreachable.
-  if (isFALSE(atlas_ok())) {
+  if (!isTRUE(atlas_ok())) {
     stop("Atlas service is not available.", call. = FALSE)
   }
 

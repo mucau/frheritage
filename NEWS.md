@@ -2,6 +2,7 @@
 
 ## New features
 
+- Added a check to ensure the availability of the data source before querying, improving robustness when the external service is unavailable.
 - Exported `get_deps()` to document and illustrate the processing workflow.
 
 ## Improvements
