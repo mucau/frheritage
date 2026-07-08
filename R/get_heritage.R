@@ -259,20 +259,53 @@ get_heritage <- function(x,
       # Handle failed download attempts gracefully.
       if (is.null(zip_tmp)) {
         if (verbose) {
-          message("Download failed for ID ", row$id,
-                  " (dep ", row$dep, ")")
+          message("Download failed for ID ", row$id, " (dep ", row$dep, ")")
         }
         return(NULL)
       }
 
-      # Extract and read shapefiles from downloaded archive.
-      res <- geo_shapefile_read(zip_tmp, crs = crs)
+      # Inspect the downloaded archive before attempting to read spatial data.
+      # The Atlas service may return a placeholder ZIP containing only
+      # 'NonTelechargeable.txt' when no downloadable dataset is available.
+      contents <- utils::unzip(zip_tmp, list = TRUE)
+
+      if (any(basename(contents$Name) == "NonTelechargeable.txt")) {
+
+        if (verbose) {
+          message(
+            "No spatial feature returned for ID ",
+            row$id,
+            " (dep ", row$dep,
+            ") within the requested extent"
+          )
+        }
+
+        return(NULL)
+      }
+
+      # Read the shapefile from the archive.
+      # Unexpected archive layouts or invalid shapefiles are handled gracefully so
+      # that processing can continue with remaining requests.
+      res <- tryCatch(
+        geo_shapefile_read(zip_tmp, crs),
+        error = function(e) {
+
+          if (verbose) {
+            message(
+              "Unable to read shapefile for ID ", row$id,
+              " (dep ", row$dep, "): ",
+              conditionMessage(e)
+            )
+          }
+
+          NULL
+        }
+      )
 
       # Validate resulting spatial object integrity.
       if (!is_valid_sf(res)) {
         if (verbose) {
-          message("Empty/invalid sf for ID ", row$id,
-                  " (dep ", row$dep, ")")
+          message("Empty/invalid sf for ID ", row$id, " (dep ", row$dep, ")")
         }
         return(NULL)
       }
