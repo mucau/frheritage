@@ -1,15 +1,8 @@
-# frheritage 0.1.1
-
-## New features
-
-- Added a check to ensure the availability of the data source before querying, improving robustness when the external service is unavailable.
-- Exported `get_deps()` to document and illustrate the processing workflow.
+# frheritage 0.1.2
 
 ## Improvements
 
-- Improved internal logic of `get_heritage_ids()` for better robustness and clarity.
-- Improved internal logic of `get_heritage()` to ensure consistent outputs.
-
-## Breaking changes
-
-- Removed spatial filtering option due to inconsistency with upstream data source behavior.
+* Improved `get_heritage()` robustness when processing spatial queries that return no features.
+* Added handling for `NonTelechargeable.txt` responses returned by the Atlas du Patrimoine when no spatial features match the requested extent.
+* Improved error handling when shapefiles cannot be read from downloaded archives.
+* Improved diagnostic messages for empty spatial query results and shapefile read failures.
