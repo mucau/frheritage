@@ -1,5 +1,5 @@
 Package: frheritage
-Version: 0.1.1
+Version: 0.1.2
 
 ## Purpose
 The package provides tools to download, parse, and manage French heritage spatial vector data 
@@ -41,11 +41,7 @@ This is a resubmission of version 0.1.1 to CRAN.
 
 ### Changes since previous submission
 
-- Removed spatial filtering option due to inconsistency with upstream data source behavior.
-- Added a pre-check to verify that the data source platform (Atlas Patrimoines API) is available before querying data.
-- Improved internal logic of `get_heritage_ids()` for better robustness and clarity.
-- Improved internal logic of `get_heritage()` to ensure consistent outputs.
-- Exported `get_deps()` to document and illustrate the processing workflow.
+- Securise `get_heritage()`
   
 ## R CMD check results
 0 errors | 0 warnings | 0 notes
